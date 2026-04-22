@@ -1,0 +1,31 @@
+# 민감 정보
+.dev.vars
+.env
+.env.local
+*.key
+*.pem
+
+# Cloudflare Wrangler 로컬 상태
+.wrangler/
+.mf/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Node (wrangler dev 사용 시)
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# 백업 (배포본에 포함 안 함 — 선택)
+# _backups/
+
+# 이전 버전 HTML (배포 제외)
+_backups/

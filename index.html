@@ -1,0 +1,2217 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>굴업도 — 9천만 년의 약속 · 뉴리프</title>
+<meta name="description" content="한국의 갈라파고스, 굴업도. 1994년 핵폐기장을 막았던 시민의 힘이 2026년 해상풍력 앞에서 다시 한번 일어선다. 증거 기반 디지털 아카이브.">
+<meta property="og:title" content="굴업도 — 9천만 년의 약속">
+<meta property="og:description" content="한국의 갈라파고스, 굴업도 30년 보전 역사와 생태 가치를 담은 프리미엄 디지털 아카이브">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="ko_KR">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="preconnect" href="https://upload.wikimedia.org">
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Serif+KR:wght@400;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+
+<style>
+/* ============================================================
+   굴업도 디지털 아카이브 — 뉴리프 (v3)
+   v3 변경: 폰트 전반 상향 · 신문 클립 스크롤 이펙트 · 인물 명언 카드
+           · 보호종 이미지 · 시민과학 모달 · 현장 스토리 재작성 · 배포후 플로우
+   ============================================================ */
+
+:root {
+  --ocean-abyss: #05111A;
+  --ocean-deep: #0A1A22;
+  --ocean: #132A36;
+  --ocean-raised: #1C3847;
+  --ocean-soft: #24475A;
+
+  --rust: #8E735B;
+  --rust-light: #B8A08A;
+  --rust-bright: #D4B896;
+
+  --vitality: #5D8C6A;
+  --vitality-bright: #7DBE8E;
+  --vitality-glow: rgba(93,140,106,0.35);
+
+  --danger: #C0392B;
+  --danger-bright: #E74C3C;
+  --amber: #D4A03C;
+  --cyan: #4AA8B8;
+
+  /* 신문 클리핑 전용 */
+  --paper: #F4ECE0;
+  --paper-dim: #E5D9C6;
+  --paper-ink: #1E1812;
+  --paper-line: rgba(30,24,18,0.25);
+
+  --text: #EFEDE8;
+  --text-soft: rgba(239,237,232,0.78);
+  --text-dim: rgba(239,237,232,0.55);
+  --text-muted: rgba(239,237,232,0.32);
+
+  --line: rgba(239,237,232,0.08);
+  --line-strong: rgba(239,237,232,0.18);
+
+  --font-sans: 'Pretendard','Inter',-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;
+  --font-num: 'Inter','Pretendard',sans-serif;
+  --font-mono: 'IBM Plex Mono','SF Mono',Menlo,monospace;
+  --font-serif: 'Noto Serif KR',serif;
+
+  --ease: cubic-bezier(.4,0,.2,1);
+  --ease-emph: cubic-bezier(.2,.8,.2,1);
+
+  --max: 1240px;
+  --max-text: 760px;
+}
+
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;scroll-padding-top:80px}
+body{
+  font-family:var(--font-sans);
+  font-weight:400;
+  font-size:17.5px;
+  line-height:1.65;
+  background:var(--ocean-abyss);
+  color:var(--text);
+  overflow-x:hidden;
+  letter-spacing:-0.005em;
+}
+::selection{background:var(--rust);color:#fff}
+img{max-width:100%;height:auto;display:block}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+
+/* ============================================================
+   PROGRESS BAR
+   ============================================================ */
+.progress-bar{
+  position:fixed;top:0;left:0;right:0;height:3px;z-index:100;
+  background:linear-gradient(90deg,var(--rust) 0%,var(--rust-bright) 50%,var(--vitality-bright) 100%);
+  transform:scaleX(0);transform-origin:left;
+  transition:transform .1s linear;
+}
+
+/* ============================================================
+   TOP NAV
+   ============================================================ */
+.top-nav{
+  position:fixed;top:0;left:0;right:0;z-index:90;
+  padding:1.35rem 2rem;
+  display:flex;justify-content:space-between;align-items:center;
+  background:linear-gradient(180deg,rgba(5,17,26,0.9) 0%,rgba(5,17,26,0) 100%);
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  transition:background .3s var(--ease);
+}
+.brand{display:flex;align-items:center;gap:.7rem;font-family:var(--font-num);font-weight:700;font-size:1rem;letter-spacing:.05em}
+.brand-mark{
+  width:1.8rem;height:1.8rem;border-radius:50%;
+  background:radial-gradient(circle at 30% 30%,var(--vitality-bright),var(--vitality));
+  box-shadow:0 0 16px var(--vitality-glow);
+  position:relative;flex:0 0 auto;
+}
+.brand-mark::after{
+  content:'';position:absolute;inset:4px;border-radius:50%;
+  background:radial-gradient(circle at 70% 70%,transparent 40%,rgba(0,0,0,.28));
+}
+.brand-text span{color:var(--rust-bright);font-weight:500;margin-left:.55rem;font-size:.78rem;letter-spacing:.22em}
+.top-nav-right{display:flex;gap:1.75rem;align-items:center;font-size:.9rem;color:var(--text-dim);font-weight:500;letter-spacing:.03em}
+.top-nav-right a:hover{color:var(--text)}
+.nav-cta{
+  padding:.6rem 1.4rem;border:1px solid var(--rust);border-radius:2rem;
+  color:var(--rust-bright);font-weight:600;font-size:.85rem;letter-spacing:.06em;
+  transition:all .2s var(--ease);
+}
+.nav-cta:hover{background:var(--rust);color:#fff;transform:translateY(-1px)}
+@media(max-width:760px){.top-nav-right a:not(.nav-cta){display:none}}
+
+/* ============================================================
+   SECTION NAV DOTS
+   ============================================================ */
+.section-dots{
+  position:fixed;right:1.5rem;top:50%;transform:translateY(-50%);z-index:50;
+  display:flex;flex-direction:column;gap:.8rem;
+}
+.section-dots button{
+  width:10px;height:10px;border-radius:50%;
+  background:var(--text-muted);border:1px solid transparent;
+  transition:all .3s var(--ease);position:relative;
+}
+.section-dots button:hover{background:var(--rust-light);transform:scale(1.5)}
+.section-dots button.active{background:var(--rust-bright);box-shadow:0 0 10px var(--rust);transform:scale(1.3)}
+.section-dots button::after{
+  content:attr(data-label);position:absolute;right:calc(100% + 1.1rem);top:50%;transform:translateY(-50%);
+  font-size:.78rem;color:var(--text-dim);white-space:nowrap;letter-spacing:.04em;
+  opacity:0;pointer-events:none;transition:opacity .2s var(--ease);
+}
+.section-dots button:hover::after{opacity:1}
+@media(max-width:760px){.section-dots{display:none}}
+
+/* ============================================================
+   SECTION BASE
+   ============================================================ */
+section{position:relative;padding:clamp(5rem,11vh,8rem) 2rem;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.container{width:100%;max-width:var(--max);margin:0 auto}
+.container-text{width:100%;max-width:var(--max-text);margin:0 auto}
+.section-num{
+  font-family:var(--font-mono);font-size:.82rem;letter-spacing:.3em;color:var(--rust-bright);
+  text-transform:uppercase;margin-bottom:1.1rem;display:flex;align-items:center;gap:.85rem;font-weight:500;
+}
+.section-num::before,.section-num::after{content:'';flex:0 0 2rem;height:1px;background:var(--rust);opacity:.6}
+.section-num::after{flex:1}
+.section-title{
+  font-size:clamp(2rem,4.2vw,3rem);
+  font-weight:800;letter-spacing:-0.025em;line-height:1.15;margin-bottom:1.4rem;
+}
+.section-title em{font-style:normal;color:var(--rust-bright);font-weight:800}
+.section-kicker{
+  font-size:1.17rem;color:var(--text-soft);line-height:1.7;margin-bottom:2.2rem;max-width:var(--max-text);
+  font-weight:400;
+}
+
+/* ============================================================
+   HERO
+   ============================================================ */
+.hero{
+  min-height:100vh;padding:0;justify-content:flex-end;text-align:left;
+  background:
+    linear-gradient(180deg,rgba(5,17,26,0.28) 0%,rgba(5,17,26,0.6) 55%,rgba(5,17,26,0.96) 100%),
+    url('https://upload.wikimedia.org/wikipedia/commons/7/78/Aerial_photograph_of_Gureopdo%2C_South_Korea.jpg') center 40%/cover no-repeat;
+  background-attachment:fixed;
+}
+.hero-inner{width:100%;max-width:var(--max);margin:0 auto;padding:0 2rem 6rem}
+.hero-eyebrow{
+  display:inline-flex;align-items:center;gap:.75rem;
+  font-family:var(--font-mono);font-size:.8rem;font-weight:500;
+  letter-spacing:.3em;color:var(--rust-bright);text-transform:uppercase;
+  border:1px solid var(--rust);padding:.55rem 1.25rem;border-radius:2rem;
+  margin-bottom:1.85rem;animation:fadeUp 1s .3s both;
+}
+.hero-eyebrow::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--vitality-bright);box-shadow:0 0 10px var(--vitality-bright);animation:pulse 2s infinite}
+.hero h1{
+  font-size:clamp(2.8rem,7.5vw,6rem);font-weight:900;line-height:1.02;letter-spacing:-0.035em;
+  margin-bottom:1.6rem;animation:fadeUp 1.2s .5s both;max-width:14ch;
+}
+.hero h1 em{font-style:normal;color:var(--rust-bright)}
+.hero h1 .divider{display:block;width:60px;height:3px;background:var(--rust);margin:1.5rem 0}
+.hero-lead{font-size:clamp(1.15rem,1.55vw,1.35rem);max-width:620px;color:var(--text-soft);line-height:1.75;animation:fadeUp 1.2s .7s both}
+.hero-meta{display:flex;gap:2.8rem;margin-top:2.75rem;animation:fadeUp 1.2s .9s both;flex-wrap:wrap}
+.hero-meta div{font-family:var(--font-mono);font-size:.78rem;color:var(--text-dim);letter-spacing:.15em;text-transform:uppercase}
+.hero-meta strong{display:block;font-family:var(--font-sans);font-size:1.55rem;font-weight:700;color:var(--text);letter-spacing:-0.02em;margin-top:.45rem;text-transform:none}
+.hero-credit{
+  position:absolute;bottom:1.5rem;right:2rem;
+  font-family:var(--font-mono);font-size:.72rem;color:var(--text-muted);letter-spacing:.1em;
+}
+.scroll-hint{
+  position:absolute;bottom:2rem;left:50%;transform:translateX(-50%);
+  font-family:var(--font-mono);font-size:.72rem;color:var(--text-dim);letter-spacing:.2em;
+  display:flex;flex-direction:column;align-items:center;gap:.8rem;animation:fadeUp 1.5s 1.5s both;
+}
+.scroll-hint::after{content:'';width:1px;height:2rem;background:linear-gradient(180deg,var(--rust-bright),transparent);animation:scrollLine 2s infinite}
+
+/* ============================================================
+   QUOTE / EPIGRAPH + 인물 카드
+   ============================================================ */
+.quote-section{
+  background:radial-gradient(ellipse at center,var(--ocean) 0%,var(--ocean-abyss) 80%);
+  text-align:center;padding:clamp(5rem,12vh,9rem) 2rem;min-height:85vh;
+}
+.quote-inner{max-width:880px;margin:0 auto}
+.quote-mark{font-family:var(--font-serif);font-size:7rem;color:var(--rust);opacity:.35;line-height:.5;margin-bottom:1rem;font-weight:700}
+.quote-text{
+  font-size:clamp(1.55rem,2.8vw,2.3rem);font-weight:300;line-height:1.5;letter-spacing:-0.01em;
+  margin-bottom:1.75rem;color:var(--text);
+}
+.quote-text em{color:var(--rust-bright);font-style:normal;font-weight:500}
+.quote-trans{
+  font-size:1.05rem;color:var(--text-dim);margin-top:.5rem;font-style:italic;font-family:var(--font-sans);
+  line-height:1.6;
+}
+.person-card{
+  display:flex;align-items:center;gap:1.5rem;padding:1.5rem;margin:2.5rem auto 0;max-width:560px;
+  background:rgba(255,255,255,0.03);border:1px solid var(--line-strong);border-radius:1rem;
+  text-align:left;
+}
+.person-portrait{
+  width:100px;height:100px;border-radius:50%;object-fit:cover;object-position:center top;
+  border:2px solid var(--rust);flex:0 0 auto;filter:sepia(.15) contrast(1.05);
+  background:var(--ocean-raised);
+}
+.person-info .name{font-size:1.15rem;font-weight:700;letter-spacing:-0.01em;margin-bottom:.2rem}
+.person-info .lived{font-family:var(--font-mono);font-size:.75rem;color:var(--rust-bright);letter-spacing:.1em;margin-bottom:.5rem}
+.person-info .bio{font-size:.9rem;color:var(--text-soft);line-height:1.6}
+@media(max-width:540px){.person-card{flex-direction:column;text-align:center}}
+
+/* ============================================================
+   STATS
+   ============================================================ */
+.stats-section{background:linear-gradient(180deg,var(--ocean-deep) 0%,var(--ocean) 100%);text-align:center}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:2.2rem;margin-top:3rem;width:100%;max-width:1150px}
+.stat-card{padding:1.5rem;border-left:2px solid var(--rust);text-align:left;transition:all .4s var(--ease)}
+.stat-card:hover{border-left-color:var(--rust-bright);transform:translateX(5px)}
+.stat-num{font-family:var(--font-num);font-size:clamp(3rem,5vw,4.2rem);font-weight:800;color:var(--rust-bright);line-height:1;letter-spacing:-0.04em}
+.stat-unit{display:inline-block;font-size:1.1rem;color:var(--text-soft);margin-left:.3rem;font-weight:400}
+.stat-label{font-size:.88rem;color:var(--text-dim);margin-top:.8rem;letter-spacing:.08em;text-transform:uppercase;font-weight:500}
+.stat-note{font-size:.93rem;color:var(--text-soft);margin-top:.55rem;line-height:1.55}
+
+/* ============================================================
+   GEOLOGY
+   ============================================================ */
+.geology-section{background:var(--ocean-deep);align-items:flex-start;justify-content:flex-start}
+.geo-grid{display:grid;grid-template-columns:1fr 1fr;gap:3.5rem;align-items:start;width:100%;max-width:var(--max);margin-top:1rem}
+@media(max-width:900px){.geo-grid{grid-template-columns:1fr}}
+.geo-layers{display:flex;flex-direction:column;gap:0;border-left:2px solid var(--line-strong);position:relative}
+.geo-layer{padding:1.65rem 1.5rem 1.65rem 2rem;position:relative;border-bottom:1px solid var(--line)}
+.geo-layer::before{content:'';position:absolute;left:-7px;top:1.75rem;width:12px;height:12px;border-radius:50%;background:var(--ocean-deep);border:2px solid var(--rust)}
+.geo-layer .age{font-family:var(--font-mono);font-size:.8rem;color:var(--rust-bright);letter-spacing:.2em;text-transform:uppercase;margin-bottom:.45rem}
+.geo-layer h4{font-size:1.15rem;font-weight:700;margin-bottom:.4rem;letter-spacing:-0.01em}
+.geo-layer p{font-size:.96rem;color:var(--text-dim);line-height:1.65}
+.geo-side-card{background:var(--ocean-raised);padding:2rem;border-radius:1rem;border:1px solid var(--line-strong)}
+.geo-side-card .tag{font-family:var(--font-mono);font-size:.78rem;letter-spacing:.2em;color:var(--rust-bright);text-transform:uppercase;margin-bottom:1.1rem;font-weight:500}
+.geo-side-card p{font-size:1rem;line-height:1.75;color:var(--text-soft);margin-bottom:1rem}
+.geo-side-card p strong{color:var(--vitality-bright);font-weight:600}
+.geo-side-card .note{font-family:var(--font-mono);font-size:.85rem;color:var(--text-dim);padding-top:1.1rem;border-top:1px solid var(--line)}
+
+/* ============================================================
+   TIMELINE — 신문 클립 스크롤 이펙트
+   ============================================================ */
+.timeline-section{background:var(--ocean);align-items:stretch;padding-bottom:6rem}
+.timeline{max-width:1100px;width:100%;margin:0 auto;position:relative;padding:2rem 0}
+.timeline::before{
+  content:'';position:absolute;left:50%;top:0;bottom:0;width:2px;transform:translateX(-50%);
+  background:linear-gradient(180deg,var(--danger) 0%,var(--amber) 35%,var(--vitality) 70%,var(--danger) 100%);
+}
+.tl-item{
+  position:relative;margin-bottom:4rem;display:grid;
+  grid-template-columns:1fr 100px 1fr;gap:1rem;align-items:start;
+  opacity:0;transform:translateY(32px);transition:all .8s var(--ease-emph);
+}
+.tl-item.visible{opacity:1;transform:translateY(0)}
+.tl-content{
+  padding:1.5rem 1.75rem;background:rgba(255,255,255,0.025);border:1px solid var(--line-strong);
+  border-radius:.85rem;transition:all .3s var(--ease);
+}
+.tl-content:hover{border-color:var(--rust);transform:translateY(-2px);box-shadow:0 12px 32px rgba(0,0,0,.3)}
+.tl-item:nth-child(even) .tl-content{grid-column:1}
+.tl-item:nth-child(even) .tl-side{grid-column:3}
+.tl-item:nth-child(odd) .tl-content{grid-column:3}
+.tl-item:nth-child(odd) .tl-side{grid-column:1}
+.tl-year{
+  grid-column:2;text-align:center;font-family:var(--font-num);font-size:1.25rem;font-weight:800;
+  letter-spacing:-0.02em;position:relative;padding-top:1rem;z-index:2;
+}
+.tl-year::before{
+  content:'';position:absolute;top:.35rem;left:50%;transform:translateX(-50%);
+  width:16px;height:16px;border-radius:50%;background:var(--ocean-deep);
+  border:3px solid currentColor;box-shadow:0 0 14px currentColor;
+}
+.tl-year.red{color:var(--danger-bright)}
+.tl-year.amber{color:var(--amber)}
+.tl-year.green{color:var(--vitality-bright)}
+.tl-kicker{font-family:var(--font-mono);font-size:.76rem;letter-spacing:.22em;color:var(--rust-light);text-transform:uppercase;margin-bottom:.45rem;font-weight:500}
+.tl-content h3{font-size:1.22rem;font-weight:700;margin-bottom:.6rem;letter-spacing:-0.01em;line-height:1.3}
+.tl-content p{font-size:1.02rem;color:var(--text-soft);line-height:1.7}
+.tl-content .tl-quote{
+  margin-top:.9rem;padding:.85rem 1.1rem;border-left:3px solid var(--rust);
+  font-size:.95rem;color:var(--text-dim);font-style:italic;background:rgba(0,0,0,.2);border-radius:0 .4rem .4rem 0;
+}
+
+/* 신문 클리핑 스타일 */
+.news-clip{
+  background:var(--paper);color:var(--paper-ink);
+  padding:1.25rem 1.35rem;border-radius:.2rem;
+  font-family:var(--font-serif);
+  box-shadow:0 8px 24px rgba(0,0,0,.4),0 2px 6px rgba(0,0,0,.35);
+  position:relative;transition:all .5s var(--ease-emph);
+  transform:rotate(-1.2deg);max-width:340px;
+}
+.tl-item:nth-child(odd) .news-clip{transform:rotate(1.5deg);margin-left:auto}
+.tl-item:nth-child(even) .news-clip{transform:rotate(-1.8deg)}
+.tl-item.visible .news-clip{transform:rotate(0)}
+.tl-item .news-clip:hover{transform:rotate(0) scale(1.03);z-index:5;box-shadow:0 20px 50px rgba(0,0,0,.55)}
+.news-clip::before{
+  content:'';position:absolute;inset:0;background:repeating-linear-gradient(45deg,transparent 0,transparent 2px,rgba(30,24,18,.015) 2px,rgba(30,24,18,.015) 4px);
+  pointer-events:none;border-radius:inherit;
+}
+.news-clip .masthead{
+  font-family:var(--font-sans);font-size:.78rem;font-weight:800;letter-spacing:.22em;
+  text-transform:uppercase;color:var(--paper-ink);opacity:.85;margin-bottom:.3rem;
+  padding-bottom:.5rem;border-bottom:1px solid var(--paper-line);
+  display:flex;justify-content:space-between;align-items:center;
+}
+.news-clip .masthead .date{font-weight:500;font-size:.72rem;opacity:.7;letter-spacing:.08em}
+.news-clip h4{
+  font-family:var(--font-serif);font-size:1.1rem;font-weight:900;line-height:1.25;
+  letter-spacing:-0.01em;margin:.5rem 0 .4rem;color:var(--paper-ink);
+}
+.news-clip .lede{
+  font-size:.88rem;line-height:1.55;color:var(--paper-ink);opacity:.82;
+  font-family:var(--font-serif);
+}
+.news-clip .byline{
+  font-family:var(--font-mono);font-size:.68rem;letter-spacing:.1em;
+  color:var(--paper-ink);opacity:.55;margin-top:.6rem;padding-top:.5rem;
+  border-top:1px dashed var(--paper-line);display:flex;justify-content:space-between;
+}
+.news-clip .byline a{color:var(--paper-ink);text-decoration:underline;opacity:.7}
+
+/* 타임라인 모바일 */
+@media(max-width:880px){
+  .timeline::before{left:14px}
+  .tl-item{grid-template-columns:32px 1fr;gap:1rem;margin-bottom:3rem}
+  .tl-item .tl-content,.tl-item:nth-child(odd) .tl-content,.tl-item:nth-child(even) .tl-content{grid-column:2;grid-row:1}
+  .tl-item .tl-year,.tl-item:nth-child(odd) .tl-year,.tl-item:nth-child(even) .tl-year{grid-column:1;grid-row:1;text-align:left;padding-top:0;font-size:1.05rem}
+  .tl-item .tl-year::before{left:0;transform:none;top:.15rem}
+  .tl-item .tl-side,.tl-item:nth-child(odd) .tl-side,.tl-item:nth-child(even) .tl-side{grid-column:2;grid-row:2;margin-top:1rem}
+  .news-clip,.tl-item:nth-child(odd) .news-clip,.tl-item:nth-child(even) .news-clip{margin:0;max-width:100%;transform:rotate(0)}
+}
+
+/* ============================================================
+   THREAT / NETWORK
+   ============================================================ */
+.threat-section{background:linear-gradient(180deg,var(--ocean) 0%,var(--ocean-deep) 100%)}
+.threat-header{text-align:center;margin-bottom:3rem}
+.threat-tag{
+  display:inline-block;padding:.5rem 1.1rem;background:rgba(192,57,43,.15);
+  border:1px solid rgba(192,57,43,.4);border-radius:2rem;
+  color:var(--danger-bright);font-family:var(--font-mono);font-size:.78rem;letter-spacing:.25em;
+  text-transform:uppercase;margin-bottom:1.2rem;font-weight:500;
+}
+.network-diagram{display:grid;grid-template-columns:1fr;gap:2.25rem;max-width:var(--max);width:100%}
+.net-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:1.1rem;position:relative}
+.net-row::after{content:'';position:absolute;left:50%;top:100%;width:1px;height:2.25rem;background:var(--rust);opacity:.55}
+.net-row:last-child::after{display:none}
+.net-node{
+  padding:1.4rem 1.6rem;background:var(--ocean-raised);border-radius:.85rem;
+  border:1px solid var(--line-strong);transition:all .3s var(--ease);position:relative;
+}
+.net-node:hover{border-color:var(--rust-light);transform:translateY(-3px)}
+.net-node.root{border-color:var(--danger);background:rgba(192,57,43,.08)}
+.net-node.leaf{border-color:var(--amber)}
+.net-node .role{font-family:var(--font-mono);font-size:.72rem;color:var(--rust-light);letter-spacing:.25em;text-transform:uppercase;margin-bottom:.55rem;font-weight:500}
+.net-node h4{font-size:1.1rem;font-weight:700;margin-bottom:.4rem;letter-spacing:-0.01em}
+.net-node p{font-size:.9rem;color:var(--text-dim);line-height:1.6}
+.net-node .dart-ref{font-family:var(--font-mono);font-size:.78rem;color:var(--cyan);margin-top:.55rem;display:block}
+
+.impact-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:1.3rem;margin-top:3rem;width:100%;max-width:var(--max)}
+.impact-card{padding:1.65rem;background:rgba(192,57,43,.04);border:1px solid rgba(192,57,43,.2);border-radius:.85rem;border-left:3px solid var(--danger)}
+.impact-card h4{font-size:1.05rem;font-weight:700;margin-bottom:.55rem;color:var(--danger-bright)}
+.impact-card p{font-size:.95rem;color:var(--text-soft);line-height:1.7}
+.impact-card .impact-meta{margin-top:.85rem;font-family:var(--font-mono);font-size:.75rem;color:var(--text-muted);letter-spacing:.1em}
+
+/* ============================================================
+   SPECIES — 이미지 카드
+   ============================================================ */
+.species-section{background:var(--ocean-deep);align-items:flex-start}
+.species-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.5rem;width:100%;max-width:var(--max);margin-top:3rem}
+.species-card{
+  background:var(--ocean-raised);border:1px solid var(--line-strong);border-radius:1.1rem;
+  overflow:hidden;transition:all .4s var(--ease);position:relative;
+  display:flex;flex-direction:column;
+}
+.species-card:hover{transform:translateY(-5px);border-color:var(--vitality);box-shadow:0 22px 48px rgba(0,0,0,.35)}
+.species-img-wrap{
+  position:relative;width:100%;height:220px;overflow:hidden;background:var(--ocean);
+}
+.species-img-wrap img{
+  width:100%;height:100%;object-fit:cover;transition:transform .8s var(--ease);
+  filter:saturate(1.05);
+}
+.species-card:hover .species-img-wrap img{transform:scale(1.05)}
+.species-img-wrap::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(180deg,transparent 40%,rgba(28,56,71,.75) 100%);
+}
+.species-img-credit{
+  position:absolute;bottom:.5rem;right:.75rem;font-family:var(--font-mono);font-size:.65rem;
+  color:rgba(255,255,255,.85);letter-spacing:.05em;z-index:2;text-shadow:0 1px 4px rgba(0,0,0,.6);
+}
+.species-body{padding:1.5rem 1.65rem 1.65rem;flex:1;display:flex;flex-direction:column}
+.species-head{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:.85rem}
+.species-sci{font-family:var(--font-mono);font-size:.8rem;color:var(--rust-light);letter-spacing:.04em;font-style:italic}
+.species-card h4{font-size:1.3rem;font-weight:700;margin:.3rem 0;letter-spacing:-0.015em}
+.species-grade{
+  font-size:.72rem;padding:.35rem .7rem;border-radius:1rem;font-family:var(--font-mono);
+  letter-spacing:.1em;text-transform:uppercase;white-space:nowrap;font-weight:600;
+}
+.grade-crit{background:rgba(192,57,43,.15);color:var(--danger-bright);border:1px solid rgba(192,57,43,.4)}
+.grade-end{background:rgba(212,160,60,.15);color:var(--amber);border:1px solid rgba(212,160,60,.4)}
+.grade-prot{background:rgba(93,140,106,.15);color:var(--vitality-bright);border:1px solid rgba(93,140,106,.4)}
+.grade-data{background:rgba(74,168,184,.15);color:var(--cyan);border:1px solid rgba(74,168,184,.35)}
+.species-card p{font-size:.98rem;color:var(--text-soft);line-height:1.65;margin-bottom:1rem}
+.species-data{
+  display:flex;gap:1.35rem;padding-top:.85rem;border-top:1px solid var(--line);
+  font-family:var(--font-mono);font-size:.78rem;color:var(--text-dim);margin-top:auto;
+}
+.species-data strong{display:block;color:var(--vitality-bright);font-size:1rem;font-family:var(--font-sans);font-weight:700;margin-top:.2rem}
+
+.species-card.clickable{cursor:pointer}
+.species-card.clickable::after{
+  content:'→ 자세히 보기';position:absolute;bottom:1rem;right:1rem;
+  font-family:var(--font-mono);font-size:.7rem;color:var(--vitality-bright);
+  letter-spacing:.12em;opacity:0;transform:translateX(-8px);transition:all .3s var(--ease);
+  background:var(--ocean-deep);padding:.35rem .6rem;border-radius:1rem;
+  border:1px solid var(--vitality);
+}
+.species-card.clickable:hover::after{opacity:1;transform:translateX(0)}
+
+/* ============================================================
+   LEGAL
+   ============================================================ */
+.legal-section{background:var(--ocean)}
+.legal-grid{display:grid;grid-template-columns:1fr 1fr;gap:3rem;width:100%;max-width:var(--max);align-items:start}
+@media(max-width:900px){.legal-grid{grid-template-columns:1fr}}
+.legal-have,.legal-gap{padding:2.2rem;border-radius:1rem;background:var(--ocean-raised);border:1px solid var(--line-strong)}
+.legal-have h3{color:var(--vitality-bright);margin-bottom:1.35rem;font-size:1.25rem;font-weight:700;display:flex;align-items:center;gap:.65rem}
+.legal-gap h3{color:var(--amber);margin-bottom:1.35rem;font-size:1.25rem;font-weight:700;display:flex;align-items:center;gap:.65rem}
+.legal-item{padding:1.1rem 0;border-bottom:1px solid var(--line)}
+.legal-item:last-child{border:none}
+.legal-item strong{font-weight:600;font-size:1rem;display:block;margin-bottom:.3rem}
+.legal-item span{font-family:var(--font-mono);font-size:.78rem;color:var(--text-dim);letter-spacing:.05em}
+.legal-item p{font-size:.92rem;color:var(--text-soft);line-height:1.6;margin-top:.4rem}
+
+/* ============================================================
+   FIELD — 현장의 목소리 (안개 스토리)
+   ============================================================ */
+.field-section{
+  background:linear-gradient(180deg,var(--ocean-deep) 0%,var(--ocean) 100%);
+  text-align:left;align-items:flex-start;
+  padding:clamp(5rem,11vh,8rem) 2rem;
+}
+.field-wrap{max-width:var(--max);width:100%;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:3.5rem;align-items:center}
+@media(max-width:900px){.field-wrap{grid-template-columns:1fr}}
+.field-photo{position:relative;border-radius:1rem;overflow:hidden;min-height:440px;background:
+  linear-gradient(180deg,rgba(5,17,26,.6),rgba(5,17,26,.2) 60%,rgba(5,17,26,.85)),
+  url('./assets/photos/260328/_1034726.jpg') center/cover no-repeat;
+  filter:brightness(.8) saturate(1.1);
+}
+.field-photo::after{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at center,transparent 0%,rgba(5,17,26,.55) 85%);
+  pointer-events:none;
+}
+.field-photo-label{
+  position:absolute;bottom:1.25rem;left:1.5rem;font-family:var(--font-mono);
+  font-size:.75rem;color:rgba(255,255,255,.85);letter-spacing:.12em;z-index:2;
+  text-shadow:0 1px 4px rgba(0,0,0,.6);
+}
+.field-story .ep{font-family:var(--font-mono);font-size:.85rem;letter-spacing:.25em;color:var(--rust-bright);text-transform:uppercase;margin-bottom:1rem;font-weight:500}
+.field-story h2{font-size:clamp(1.9rem,3.6vw,2.6rem);font-weight:800;letter-spacing:-0.02em;margin-bottom:1.25rem;line-height:1.2}
+.field-story h2 em{font-style:normal;color:var(--rust-bright)}
+.field-story p{font-size:1.1rem;color:var(--text-soft);line-height:1.8;margin-bottom:1rem}
+.field-story .dialog{
+  margin:1.5rem 0;padding:1.25rem 1.5rem;
+  border-left:3px solid var(--vitality);background:rgba(93,140,106,.06);
+  border-radius:0 .5rem .5rem 0;font-size:1.02rem;line-height:1.75;
+  color:var(--text);font-style:italic;
+}
+.field-story .dialog strong{font-style:normal;color:var(--vitality-bright);font-weight:600;display:block;margin-bottom:.3rem}
+.field-promise{
+  display:inline-block;margin-top:1.25rem;padding:.85rem 1.5rem;
+  font-family:var(--font-serif);font-size:1.15rem;font-weight:700;letter-spacing:-0.01em;
+  color:var(--rust-bright);border-left:3px solid var(--rust);
+}
+
+/* ============================================================
+   MAP
+   ============================================================ */
+.map-section{background:var(--ocean);min-height:auto}
+.map-container{width:100%;max-width:var(--max);height:62vh;min-height:520px;border-radius:1rem;overflow:hidden;border:1px solid var(--line-strong);margin-top:2.25rem;position:relative}
+#leaflet-map{width:100%;height:100%;background:var(--ocean-deep);filter:hue-rotate(-10deg) saturate(.85)}
+.leaflet-container{font-family:var(--font-sans)!important}
+.map-legend{margin-top:1.75rem;display:flex;flex-wrap:wrap;gap:1.75rem;font-size:.95rem;color:var(--text-soft)}
+.map-legend span{display:flex;align-items:center;gap:.6rem}
+.map-legend span::before{content:'';width:12px;height:12px;border-radius:50%}
+.leg-rock::before{background:var(--rust-bright)}
+.leg-eco::before{background:var(--vitality-bright)}
+.leg-threat::before{background:var(--danger-bright)}
+
+/* ============================================================
+   ROADMAP
+   ============================================================ */
+.roadmap-section{background:linear-gradient(180deg,var(--ocean-deep) 0%,var(--ocean) 100%)}
+.roadmap-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.4rem;width:100%;max-width:var(--max);margin-top:3rem}
+.roadmap-card{
+  padding:1.9rem;background:var(--ocean-raised);border-radius:1.1rem;
+  border-top:3px solid var(--vitality);position:relative;transition:all .4s var(--ease);
+}
+.roadmap-card:hover{transform:translateY(-4px);box-shadow:0 16px 44px rgba(0,0,0,.35)}
+.roadmap-year{font-family:var(--font-num);font-size:1.2rem;font-weight:800;color:var(--vitality-bright);letter-spacing:-0.01em;margin-bottom:.85rem}
+.roadmap-card h4{font-size:1.15rem;font-weight:700;margin-bottom:.9rem;letter-spacing:-0.01em}
+.roadmap-card ul{list-style:none;padding:0}
+.roadmap-card li{font-size:.95rem;color:var(--text-soft);line-height:1.8;padding-left:1.25rem;position:relative}
+.roadmap-card li::before{content:'—';position:absolute;left:0;color:var(--rust)}
+
+/* ============================================================
+   CTA + FORM
+   ============================================================ */
+.cta-section{background:linear-gradient(180deg,var(--ocean) 0%,var(--ocean-deep) 100%);text-align:center}
+.cta-section h2{font-size:clamp(2.1rem,4.8vw,3.4rem);font-weight:800;letter-spacing:-0.03em;line-height:1.15;max-width:820px;margin:0 auto 1.1rem}
+.cta-section h2 em{font-style:normal;color:var(--rust-bright)}
+.cta-lead{font-size:1.2rem;color:var(--text-soft);max-width:620px;margin:0 auto 3rem;line-height:1.7}
+
+.cta-form{
+  display:grid;grid-template-columns:1fr 1fr;gap:1.1rem;max-width:780px;width:100%;margin:0 auto;
+  padding:2.75rem;background:var(--ocean-raised);border-radius:1.25rem;border:1px solid var(--line-strong);
+}
+@media(max-width:600px){.cta-form{grid-template-columns:1fr;padding:1.85rem}}
+.cta-form label{font-family:var(--font-mono);font-size:.78rem;color:var(--rust-light);letter-spacing:.2em;text-transform:uppercase;text-align:left;display:block;margin-bottom:.55rem;font-weight:500}
+.cta-form input,.cta-form select,.cta-form textarea{
+  width:100%;padding:.95rem 1.1rem;border:1px solid var(--line-strong);background:var(--ocean);
+  color:var(--text);border-radius:.5rem;font-family:inherit;font-size:1rem;
+  transition:border .2s var(--ease);
+}
+.cta-form input:focus,.cta-form select:focus,.cta-form textarea:focus{outline:none;border-color:var(--rust-bright);box-shadow:0 0 0 3px rgba(212,184,150,.1)}
+.cta-form textarea{min-height:110px;resize:vertical;grid-column:1/-1}
+.cta-form .field-full{grid-column:1/-1;text-align:left}
+.cta-form .submit-row{grid-column:1/-1;display:flex;gap:1rem;justify-content:flex-end;margin-top:.6rem;flex-wrap:wrap}
+.btn{padding:1rem 2.2rem;border-radius:2.5rem;font-weight:700;font-size:.95rem;letter-spacing:.02em;transition:all .2s var(--ease);border:1px solid transparent;cursor:pointer;font-family:inherit}
+.btn-primary{background:var(--vitality);color:#fff}
+.btn-primary:hover{background:var(--vitality-bright);transform:translateY(-1px);box-shadow:0 8px 22px var(--vitality-glow)}
+.btn-outline{border-color:var(--rust);color:var(--rust-bright);background:transparent}
+.btn-outline:hover{background:var(--rust);color:#fff}
+.cta-side{display:flex;gap:1.5rem;justify-content:center;margin-top:2.25rem;flex-wrap:wrap;font-size:.93rem;color:var(--text-dim)}
+.cta-side a{color:var(--rust-bright);border-bottom:1px dotted var(--rust)}
+.cta-side a:hover{color:var(--rust-bright);border-bottom-color:var(--rust-bright)}
+.radio-group{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:.6rem;margin-top:.25rem;
+}
+.cta-form .radio-group label{
+  display:flex;align-items:center;gap:.75rem;
+  padding:.85rem 1.1rem;
+  background:var(--ocean-deep);border:1.5px solid var(--line-strong);
+  border-radius:.65rem;cursor:pointer;
+  font-family:var(--font-sans);
+  font-size:.94rem;font-weight:500;
+  color:var(--text);
+  text-transform:none;letter-spacing:-0.005em;
+  text-align:left;line-height:1.3;
+  margin:0;
+  transition:all .2s var(--ease);
+}
+.cta-form .radio-group label:hover{
+  border-color:var(--vitality);
+  background:rgba(93,140,106,.06);
+  transform:translateY(-1px);
+}
+.cta-form .radio-group label:has(input:checked){
+  background:rgba(93,140,106,.12);
+  border-color:var(--vitality-bright);
+  color:var(--text);
+}
+.cta-form .radio-group input[type="checkbox"]{
+  appearance:none;-webkit-appearance:none;-moz-appearance:none;
+  width:20px;height:20px;flex:0 0 auto;
+  border:1.5px solid var(--line-strong);
+  background:var(--ocean);
+  border-radius:.35rem;
+  position:relative;cursor:pointer;
+  transition:all .2s var(--ease);
+  padding:0;margin:0;
+}
+.cta-form .radio-group input[type="checkbox"]:hover{border-color:var(--vitality)}
+.cta-form .radio-group input[type="checkbox"]:checked{
+  background:var(--vitality);
+  border-color:var(--vitality);
+}
+.cta-form .radio-group input[type="checkbox"]:checked::after{
+  content:'';position:absolute;
+  top:50%;left:50%;transform:translate(-50%,-60%) rotate(45deg);
+  width:5px;height:10px;
+  border:solid #fff;border-width:0 2.5px 2.5px 0;
+}
+@media(max-width:520px){.radio-group{grid-template-columns:1fr}}
+
+/* ============================================================
+   POST-SUBMIT FLOW (신청 후 어떻게 되나요)
+   ============================================================ */
+.flow-section{background:var(--ocean-deep);padding-top:3rem}
+.flow-track{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:1.1rem;margin-top:2.75rem;width:100%;max-width:var(--max);position:relative;
+}
+.flow-track::before{
+  content:'';position:absolute;top:2rem;left:5%;right:5%;height:2px;
+  background:linear-gradient(90deg,var(--vitality) 0%,var(--rust) 50%,var(--vitality-bright) 100%);
+  opacity:.4;z-index:0;
+}
+@media(max-width:800px){.flow-track{grid-template-columns:1fr 1fr}.flow-track::before{display:none}}
+@media(max-width:480px){.flow-track{grid-template-columns:1fr}}
+.flow-step{padding:1.5rem 1.25rem;background:var(--ocean-raised);border-radius:.85rem;border:1px solid var(--line-strong);position:relative;z-index:1}
+.flow-step .step-num{
+  width:2.6rem;height:2.6rem;border-radius:50%;background:var(--ocean);border:2px solid var(--vitality);
+  display:flex;align-items:center;justify-content:center;font-family:var(--font-num);font-weight:800;
+  font-size:1rem;color:var(--vitality-bright);margin-bottom:1rem;
+}
+.flow-step h5{font-size:1.02rem;font-weight:700;margin-bottom:.5rem;letter-spacing:-0.01em}
+.flow-step p{font-size:.9rem;color:var(--text-dim);line-height:1.6}
+.flow-step .step-time{font-family:var(--font-mono);font-size:.72rem;color:var(--rust-bright);letter-spacing:.12em;margin-top:.55rem;text-transform:uppercase}
+
+/* ============================================================
+   FOOTNOTE PANEL
+   ============================================================ */
+sup.ref{
+  font-family:var(--font-mono);font-size:.7em;color:var(--rust-bright);cursor:pointer;
+  padding:0 .15rem;font-weight:600;transition:color .2s var(--ease);
+}
+sup.ref::before{content:'['}sup.ref::after{content:']'}
+sup.ref:hover{color:var(--rust-light)}
+.footnote-panel{
+  position:fixed;right:-440px;top:0;bottom:0;width:420px;max-width:100vw;z-index:110;
+  background:var(--ocean-deep);border-left:1px solid var(--line-strong);
+  padding:4.5rem 2rem 2rem;overflow-y:auto;transition:right .4s var(--ease-emph);
+  box-shadow:-22px 0 64px rgba(0,0,0,.55);
+}
+.footnote-panel.open{right:0}
+.footnote-close{position:absolute;top:1.25rem;right:1.5rem;width:40px;height:40px;border-radius:50%;background:var(--ocean-raised);display:flex;align-items:center;justify-content:center;font-size:1.3rem;color:var(--text-soft)}
+.footnote-close:hover{background:var(--rust)}
+.footnote-panel h4{font-size:.92rem;color:var(--rust-bright);letter-spacing:.2em;text-transform:uppercase;font-family:var(--font-mono);font-weight:500;margin-bottom:1.35rem}
+.footnote-panel .fn-title{font-size:1.15rem;font-weight:700;margin-bottom:.55rem;letter-spacing:-0.01em;line-height:1.35}
+.footnote-panel .fn-source{font-size:.88rem;color:var(--text-dim);margin-bottom:1.1rem}
+.footnote-panel .fn-desc{font-size:.95rem;color:var(--text-soft);line-height:1.7;margin-bottom:1.1rem}
+.footnote-panel .fn-meta{display:flex;gap:1rem;font-family:var(--font-mono);font-size:.75rem;color:var(--text-muted);padding-top:1.1rem;border-top:1px solid var(--line)}
+.footnote-panel .fn-link{display:inline-flex;align-items:center;gap:.4rem;padding:.6rem 1.1rem;margin-top:1.1rem;border:1px solid var(--rust);border-radius:2rem;color:var(--rust-bright);font-size:.88rem;font-weight:600}
+.footnote-panel .fn-link:hover{background:var(--rust);color:#fff}
+.fn-links-wrap{display:flex;flex-direction:column;gap:.5rem;margin-top:1.3rem}
+.fn-link-row{
+  display:flex;justify-content:space-between;align-items:center;gap:.75rem;
+  padding:.85rem 1rem;background:var(--ocean-raised);border:1px solid var(--line-strong);
+  border-radius:.6rem;transition:all .2s var(--ease);
+}
+.fn-link-row:hover{border-color:var(--rust-bright);transform:translateX(3px);background:rgba(212,184,150,0.06)}
+.fn-link-body{flex:1;min-width:0}
+.fn-link-label{font-size:.92rem;font-weight:600;color:var(--text);margin-bottom:.35rem;line-height:1.35;letter-spacing:-0.005em}
+.fn-link-meta{display:flex;align-items:center;gap:.55rem;flex-wrap:wrap}
+.fn-link-type{font-family:var(--font-mono);font-size:.68rem;color:var(--text-dim);letter-spacing:.08em;text-transform:uppercase}
+.fn-link-arrow{color:var(--rust-bright);font-size:1.1rem;flex:0 0 auto;font-weight:600}
+.link-status{
+  display:inline-flex;align-items:center;gap:.2rem;
+  font-family:var(--font-mono);font-size:.62rem;font-weight:600;
+  letter-spacing:.05em;padding:.2rem .45rem;border-radius:1rem;
+}
+.status-verified,.status-primary{background:rgba(93,140,106,.2);color:var(--vitality-bright);border:1px solid rgba(93,140,106,.4)}
+.status-search,.status-secondary{background:rgba(212,160,60,.15);color:var(--amber);border:1px solid rgba(212,160,60,.35)}
+.status-cite,.status-reconstructed{background:rgba(192,57,43,.15);color:var(--danger-bright);border:1px solid rgba(192,57,43,.35)}
+
+/* 각주 패널 스크린샷 */
+.fn-shots{display:grid;grid-template-columns:1fr;gap:.6rem;margin:.8rem 0 1.2rem}
+.fn-shot-tile{
+  display:block;position:relative;border-radius:.6rem;overflow:hidden;
+  border:1px solid var(--line-strong);background:var(--ocean-raised);
+  transition:all .25s var(--ease);
+}
+.fn-shot-tile:hover{border-color:var(--rust-bright);transform:translateY(-2px);box-shadow:0 10px 24px rgba(0,0,0,.45)}
+.fn-shot-tile img{width:100%;height:auto;display:block}
+.fn-shot-caption{
+  position:absolute;bottom:0;left:0;right:0;padding:.45rem .65rem;
+  background:linear-gradient(0deg,rgba(5,17,26,.94) 0%,transparent 100%);
+  font-family:var(--font-mono);font-size:.7rem;color:rgba(255,255,255,.85);
+  letter-spacing:.04em;
+}
+.fn-shot-pending{
+  padding:1rem 1.1rem;background:rgba(74,168,184,.05);
+  border:1px dashed var(--line-strong);border-radius:.55rem;
+  font-size:.82rem;color:var(--text-dim);line-height:1.55;margin:.8rem 0 1.1rem;
+}
+.fn-shot-pending strong{color:var(--cyan);display:block;margin-bottom:.35rem;font-weight:600;font-size:.88rem}
+.fn-shot-pending p{margin-bottom:.5rem}
+.fn-shot-pending ul{list-style:none;padding-left:0;margin-top:.3rem}
+.fn-shot-pending li{padding:.15rem 0}
+.fn-shot-pending code{background:rgba(5,17,26,.5);padding:.15rem .4rem;border-radius:.25rem;font-family:var(--font-mono);font-size:.75rem;color:var(--rust-bright)}
+.fn-links-label{
+  font-family:var(--font-mono);font-size:.76rem;letter-spacing:.15em;
+  color:var(--rust-bright);margin:1.2rem 0 .4rem;text-transform:uppercase;font-weight:500;
+}
+
+/* 신문 클립 배지 */
+.news-clip .clip-badge{
+  position:absolute;top:-.55rem;left:1rem;padding:.22rem .6rem;
+  font-family:var(--font-sans);font-size:.62rem;font-weight:700;letter-spacing:.08em;
+  text-transform:uppercase;border-radius:.3rem;z-index:2;white-space:nowrap;
+  box-shadow:0 2px 6px rgba(0,0,0,.3);
+}
+.clip-badge-reconstructed{background:var(--danger);color:#fff}
+.clip-badge-primary{background:var(--vitality);color:#fff}
+.clip-badge-statement{background:var(--rust);color:#fff}
+.news-clip .clip-note{
+  margin-top:.6rem;padding-top:.5rem;border-top:1px dashed var(--paper-line);
+  font-family:var(--font-sans);font-size:.68rem;color:var(--paper-ink);opacity:.55;
+  letter-spacing:.04em;
+}
+.fn-badge{display:inline-block;padding:.25rem .6rem;border-radius:1rem;font-family:var(--font-mono);font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;margin-right:.4rem}
+.badge-high{background:rgba(93,140,106,.2);color:var(--vitality-bright);border:1px solid rgba(93,140,106,.4)}
+.badge-med{background:rgba(74,168,184,.15);color:var(--cyan);border:1px solid rgba(74,168,184,.3)}
+.badge-cite{background:rgba(212,160,60,.15);color:var(--amber);border:1px solid rgba(212,160,60,.3)}
+
+/* ============================================================
+   CITIZEN SCIENCE MODAL
+   ============================================================ */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(5,17,26,.88);z-index:120;
+  display:none;align-items:center;justify-content:center;padding:2rem;
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  opacity:0;transition:opacity .3s var(--ease);
+}
+.modal-overlay.open{display:flex;opacity:1}
+.modal{
+  max-width:960px;width:100%;max-height:90vh;overflow-y:auto;
+  background:var(--ocean-deep);border:1px solid var(--line-strong);border-radius:1.25rem;
+  position:relative;transform:translateY(20px);transition:transform .4s var(--ease-emph);
+}
+.modal-overlay.open .modal{transform:translateY(0)}
+.modal-close{
+  position:absolute;top:1rem;right:1rem;width:40px;height:40px;border-radius:50%;
+  background:var(--ocean-raised);color:var(--text);font-size:1.5rem;z-index:2;
+  display:flex;align-items:center;justify-content:center;
+}
+.modal-close:hover{background:var(--rust)}
+.modal-header{padding:2.5rem 2.5rem 1.5rem}
+.modal-header .kicker{font-family:var(--font-mono);font-size:.8rem;color:var(--rust-bright);letter-spacing:.25em;text-transform:uppercase;margin-bottom:.85rem;font-weight:500}
+.modal-header h3{font-size:1.8rem;font-weight:800;letter-spacing:-0.02em;line-height:1.2;margin-bottom:.65rem}
+.modal-header p{font-size:1rem;color:var(--text-soft);line-height:1.7}
+.modal-body{padding:1rem 2.5rem 2.5rem}
+.modal-section-title{font-family:var(--font-mono);font-size:.78rem;letter-spacing:.22em;color:var(--rust-bright);text-transform:uppercase;margin:1.75rem 0 .85rem;padding-bottom:.5rem;border-bottom:1px solid var(--line);font-weight:500}
+.modal-section-title:first-of-type{margin-top:.5rem}
+.modal-img-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:.6rem;margin-bottom:.5rem}
+.modal-img-grid .img-tile{position:relative;aspect-ratio:4/3;overflow:hidden;border-radius:.5rem;background:var(--ocean-raised);border:1px solid var(--line-strong);cursor:pointer;transition:border-color .2s var(--ease);display:block;color:inherit;text-decoration:none}
+.modal-img-grid .img-tile:hover{border-color:var(--vitality)}
+.modal-img-grid img{width:100%;height:100%;object-fit:cover;transition:transform .45s var(--ease);display:block}
+.modal-img-grid .img-tile:hover img{transform:scale(1.05)}
+.modal-img-grid .img-caption{position:absolute;bottom:0;left:0;right:0;padding:.55rem .65rem;background:linear-gradient(0deg,rgba(5,17,26,.95) 0%,rgba(5,17,26,.7) 70%,transparent 100%);font-size:.78rem;color:#fff;font-family:var(--font-sans);line-height:1.3}
+.modal-img-grid .img-caption strong{display:block;font-weight:600;font-size:.82rem;margin-bottom:.15rem}
+.modal-img-grid .img-caption span{font-family:var(--font-mono);font-size:.65rem;color:rgba(255,255,255,.75);letter-spacing:.05em}
+.modal-img-grid .img-fallback{
+  position:absolute;inset:0;display:none;align-items:center;justify-content:center;
+  font-family:var(--font-mono);font-size:.72rem;color:var(--text-dim);text-align:center;padding:1rem;
+  background:var(--ocean-raised);
+}
+.modal-img-grid .img-tile.failed img{display:none}
+.modal-img-grid .img-tile.failed .img-caption{display:none}
+.modal-img-grid .img-tile.failed .img-fallback{display:flex}
+.modal-note{
+  font-size:.88rem;color:var(--text-dim);line-height:1.65;padding:1rem 1.15rem;
+  background:rgba(74,168,184,.06);border-left:3px solid var(--cyan);border-radius:0 .4rem .4rem 0;
+  margin-top:1rem;
+}
+.modal-links{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.9rem;margin-top:1.5rem}
+.modal-link{
+  padding:1rem 1.2rem;background:var(--ocean-raised);border:1px solid var(--line-strong);
+  border-radius:.6rem;display:flex;justify-content:space-between;align-items:center;transition:all .2s var(--ease);
+}
+.modal-link:hover{border-color:var(--vitality);transform:translateY(-2px)}
+.modal-link strong{font-size:.95rem;font-weight:600;display:block;margin-bottom:.15rem}
+.modal-link span{font-size:.78rem;color:var(--text-dim)}
+.modal-link .arrow{color:var(--vitality-bright);font-size:1.2rem}
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+footer{background:var(--ocean-abyss);padding:4.5rem 2rem 3rem;text-align:center;border-top:1px solid var(--line)}
+.footer-grid{max-width:var(--max);margin:0 auto;display:grid;grid-template-columns:2fr 1fr 1fr;gap:3.25rem;text-align:left;margin-bottom:3rem}
+@media(max-width:700px){.footer-grid{grid-template-columns:1fr;text-align:center}}
+.footer-brand{font-size:1.2rem;font-weight:700;margin-bottom:.55rem;letter-spacing:-0.01em}
+.footer-desc{font-size:.95rem;color:var(--text-dim);line-height:1.75;max-width:380px}
+.footer-grid h5{font-size:.8rem;color:var(--rust-bright);letter-spacing:.2em;text-transform:uppercase;font-family:var(--font-mono);font-weight:500;margin-bottom:1.1rem}
+.footer-grid ul{list-style:none}
+.footer-grid li{font-size:.92rem;color:var(--text-soft);margin-bottom:.55rem}
+.footer-grid a:hover{color:var(--rust-bright)}
+.footer-bottom{padding-top:2.25rem;border-top:1px solid var(--line);font-size:.85rem;color:var(--text-muted);max-width:var(--max);margin:0 auto}
+.footer-bottom p{margin-bottom:.5rem}
+
+/* ============================================================
+   ANIMATIONS
+   ============================================================ */
+@keyframes fadeUp{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes scrollLine{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}50.1%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+
+.reveal{opacity:0;transform:translateY(34px);transition:all .95s var(--ease-emph)}
+.reveal.visible{opacity:1;transform:translateY(0)}
+.reveal-stagger>*{opacity:0;transform:translateY(26px);transition:all .75s var(--ease-emph)}
+.reveal-stagger.visible>*:nth-child(1){transition-delay:.05s;opacity:1;transform:translateY(0)}
+.reveal-stagger.visible>*:nth-child(2){transition-delay:.15s;opacity:1;transform:translateY(0)}
+.reveal-stagger.visible>*:nth-child(3){transition-delay:.25s;opacity:1;transform:translateY(0)}
+.reveal-stagger.visible>*:nth-child(4){transition-delay:.35s;opacity:1;transform:translateY(0)}
+.reveal-stagger.visible>*:nth-child(5){transition-delay:.45s;opacity:1;transform:translateY(0)}
+.reveal-stagger.visible>*:nth-child(n+6){transition-delay:.55s;opacity:1;transform:translateY(0)}
+
+/* ============================================================
+   PRINT
+   ============================================================ */
+@media print{
+  body{background:#fff;color:#000;font-size:12pt}
+  .top-nav,.section-dots,.progress-bar,.scroll-hint,.footnote-panel,.cta-side,.modal-overlay{display:none!important}
+  section{page-break-inside:avoid;min-height:auto;padding:1.5rem;color:#000;background:#fff!important}
+  .hero{height:auto;background:#fff!important}
+  .hero h1,.section-title,h2,h3,h4{color:#000!important}
+  .news-clip{break-inside:avoid;box-shadow:none;transform:rotate(0)!important}
+  a{color:#000;text-decoration:underline}
+  img{max-height:10cm}
+}
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar"></div>
+
+<nav class="top-nav" id="topNav">
+  <div class="brand">
+    <div class="brand-mark" aria-hidden="true"></div>
+    <div class="brand-text">NEWLEAF<span>GULUPDO ARCHIVE</span></div>
+  </div>
+  <div class="top-nav-right">
+    <a href="#section-timeline">역사</a>
+    <a href="#section-species">생명</a>
+    <a href="#section-threat">위협</a>
+    <a href="#section-map">지도</a>
+    <a href="#section-cta" class="nav-cta">함께하기</a>
+  </div>
+</nav>
+
+<aside class="section-dots" id="sectionDots"></aside>
+
+<!-- ============ 01. HERO ============ -->
+<section class="hero" id="section-hero" data-label="서막">
+  <div class="hero-inner">
+    <div class="hero-eyebrow">Digital Archive · Since 1994 · NewLeaf 2026</div>
+    <h1>9천만 년의 땅,<br><em>30년의 저항</em><span class="divider"></span></h1>
+    <p class="hero-lead">
+      한국 서해의 작은 섬 굴업도는 1994년 핵폐기물 처리장 후보지였습니다.<sup class="ref" data-ref="1">1</sup>
+      시민의 연대와 과학적 근거가 그 계획을 뒤집었고,<sup class="ref" data-ref="4">4</sup>
+      30년 후 이곳은 매·먹구렁이·왕은점표범나비가 살아가는 <em style="color:var(--vitality-bright);font-style:normal">법적 보호 생태계</em>가 되었습니다.<br>
+      그리고 2026년, 새로운 질문이 왔습니다.
+    </p>
+    <div class="hero-meta">
+      <div>GPS<strong>37.19°N 125.96°E</strong></div>
+      <div>면적<strong>1.71 km²</strong></div>
+      <div>거리<strong>인천항에서 1시간 30분</strong></div>
+      <div>보호 등급<strong>특정도서 · 생태계 1등급</strong></div>
+    </div>
+  </div>
+  <div class="hero-credit">Aerial: Wikimedia Commons / Mosbatho · CC BY 4.0 · 2019</div>
+  <div class="scroll-hint">SCROLL</div>
+</section>
+
+<!-- ============ 02. PROLOGUE — RACHEL CARSON ============ -->
+<section class="quote-section" data-label="프롤로그">
+  <div class="quote-inner">
+    <div class="quote-mark">"</div>
+    <p class="quote-text">자연 속에서 <em>홀로 존재하는 것은 아무것도 없다.</em></p>
+    <p class="quote-trans">In nature, nothing exists alone.</p>
+    <div class="person-card">
+      <img class="person-portrait" src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/Rachel-Carson.jpg/480px-Rachel-Carson.jpg" alt="Rachel Carson 초상" loading="lazy">
+      <div class="person-info">
+        <div class="name">Rachel Carson · 레이첼 카슨</div>
+        <div class="lived">1907 – 1964 · 해양생물학자</div>
+        <div class="bio">미국 어류야생동물국 해양생물학자. 1962년 『침묵의 봄』으로 살충제(DDT)의 생태계 파괴를 폭로. 미국 환경보호청(EPA) 설립의 지적 토대를 놓은 현대 환경운동의 출발점.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 03. STATS ============ -->
+<section class="stats-section" id="section-stats" data-label="개요">
+  <div class="container-text">
+    <div class="section-num reveal">개요</div>
+    <h2 class="section-title reveal">숫자로 서 있는 섬</h2>
+    <p class="section-kicker reveal">섬 하나를 증명하는 데 필요한 것. 지질 시대, 사건의 연도, 살아남은 종, 법조문의 숫자.</p>
+  </div>
+  <div class="stats-grid reveal-stagger">
+    <div class="stat-card"><div class="stat-num" data-target="90"><span class="counter">0</span><span class="stat-unit">M년</span></div><div class="stat-label">백악기 응회암 형성</div><div class="stat-note">한반도에 드문 화산 지질 노두</div></div>
+    <div class="stat-card"><div class="stat-num" data-target="30"><span class="counter">0</span><span class="stat-unit">년+</span></div><div class="stat-label">시민 보전의 역사</div><div class="stat-note">1994 핵폐기장 저항부터 현재까지</div></div>
+    <div class="stat-card"><div class="stat-num" data-target="11"><span class="counter">0</span><span class="stat-unit">개월</span></div><div class="stat-label">핵폐기장 백지화까지 걸린 시간</div><div class="stat-note">1994.12 발표 → 1995.11 철회</div></div>
+    <div class="stat-card"><div class="stat-num" data-target="5"><span class="counter">0</span><span class="stat-unit">종+</span></div><div class="stat-label">법적 멸종위기 보호종</div><div class="stat-note">매·먹구렁이·왕은점표범나비 등</div></div>
+    <div class="stat-card"><div class="stat-num" data-target="81"><span class="counter">0</span></div><div class="stat-label">수집된 증거 문서</div><div class="stat-note">학술·정부·언론·시민과학</div></div>
+    <div class="stat-card"><div class="stat-num" data-target="2026"><span class="counter">0</span></div><div class="stat-label">해상풍력 착공 예정</div><div class="stat-note">환경영향평가 진행 중 · 긴급</div></div>
+  </div>
+</section>
+
+<!-- ============ 04. GEOLOGY ============ -->
+<section class="geology-section" id="section-geology" data-label="지질">
+  <div class="container">
+    <div class="section-num reveal">Ⅰ · 시간의 시</div>
+    <h2 class="section-title reveal">이 섬은 <em>9천만 년</em>을 기다렸다</h2>
+    <p class="section-kicker reveal">굴업도는 중생대 백악기 화산활동이 남긴 응회암 섬입니다.<sup class="ref" data-ref="11">11</sup> 지구가 공룡의 마지막 페이지를 쓰던 시기, 용암과 화산재가 굳어 만든 이 땅 위를 지금 매가 날아다닙니다.</p>
+    <div class="geo-grid">
+      <div class="geo-layers reveal-stagger">
+        <div class="geo-layer"><div class="age">9000만 년 전 · 백악기 후기</div><h4>화산 폭발과 응회암 퇴적</h4><p>격렬한 분화로 쏟아진 화산재가 바다 아래 가라앉으며 수백 미터 두께의 응회암 층을 형성.<sup class="ref" data-ref="11">11</sup></p></div>
+        <div class="geo-layer"><div class="age">수천만 년 전</div><h4>해수면 변동과 절벽 형성</h4><p>빙하기와 간빙기의 해수면 오르내림이 응회암을 깎아 해식애와 타포니를 만듬.</p></div>
+        <div class="geo-layer"><div class="age">1만 년 전 · 홀로세</div><h4>토끼섬 · 코끼리바위 완성</h4><p>파도와 염풍화가 응회암 절벽을 깎아 국내외 희귀 지형인 해식와(sea-cave wall)와 시스택 완성.</p></div>
+        <div class="geo-layer"><div class="age">현재</div><h4>살아있는 지질 교과서</h4><p>풍화혈(타포니) · 응회암 층리 · 해식와 · 사구 · 시스택. 한국 해안 지질 연구의 실외 강의실.<sup class="ref" data-ref="11">11</sup></p></div>
+      </div>
+      <div>
+        <div class="geo-side-card">
+          <div class="tag">지질학적 가치</div>
+          <p>굴업도의 응회암층은 한반도 내륙에서 보기 드문 <strong>해양 화산쇄설암 노두</strong>입니다.</p>
+          <p><strong>유네스코 세계지질공원</strong> 등재 기준에 부합하는 층서·구조·풍화 지형을 모두 갖추고 있어 학술 연구의 보고로 평가됩니다.</p>
+          <p class="note">토끼섬 해식와는 국내 유일 · 국외에서도 희귀한 지형으로 천연기념물 지정이 수차례 검토되었다.<sup class="ref" data-ref="11">11</sup></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 05. TIMELINE — 신문 클립 ============ -->
+<section class="timeline-section" id="section-timeline" data-label="저항의 30년">
+  <div class="container-text" style="margin-bottom:3rem">
+    <div class="section-num reveal">Ⅱ · 저항의 역사</div>
+    <h2 class="section-title reveal">1994년 겨울, <em>섬이 목소리를 냈다</em></h2>
+    <p class="section-kicker reveal">정부는 주민 수가 적어 반대가 어려울 것이라 판단했습니다.<sup class="ref" data-ref="1">1</sup> 그러나 30개 이상의 시민단체가 연대했고, 과학이 도왔습니다.<sup class="ref" data-ref="5">5</sup> 아래는 당시·이후의 언론 기록과 함께 보는 30년의 사건들입니다.</p>
+  </div>
+  <div class="timeline">
+
+    <div class="tl-item">
+      <div class="tl-content">
+        <div class="tl-kicker">1994.12.22 · 정부 발표</div>
+        <h3>핵폐기물 처리장 후보지 지정</h3>
+        <p>정부는 사전 주민 설명·공청회 없이 굴업도를 공식 발표. 비공개로 추진된 행정편의적 결정이었다.<sup class="ref" data-ref="1">1</sup></p>
+        <div class="tl-quote">"주민 110명이 사는 섬에 핵폐기장? 가능하다고 본 건가." — 덕적도 주민 증언</div>
+      </div>
+      <div class="tl-year red">1994</div>
+      <div class="tl-side">
+        <div class="news-clip">
+          <div class="masthead"><span>경인일보</span><span class="date">1994.12.23</span></div>
+          <h4>"인천 앞바다 굴업도, 방사성 폐기물 처리장 후보지로"</h4>
+          <p class="lede">정부가 22일 핵폐기물 처리장 후보지로 굴업도를 확정 발표. 인근 덕적도 주민들 강하게 반발. 과학기술처는 "주민이 극소수라 적합하다" 입장.</p>
+          <div class="byline"><span>환경 · 사회부</span><span>지상 보도</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-side">
+        <div class="news-clip">
+          <div class="masthead"><span>동아일보</span><span class="date">1995.01.17</span></div>
+          <h4>덕적도 주민, 답동성당서 무기한 농성 돌입</h4>
+          <p class="lede">덕적도 어민 40여 명 인천 답동성당에서 핵폐기장 반대 농성 개시. 인천 시민단체 30여 개 연대. "환경과 생계 모두 걸린 문제."</p>
+          <div class="byline"><span>인천 특파원</span><span>citation-only</span></div>
+        </div>
+      </div>
+      <div class="tl-year red">1995<br><span style="font-size:.7em;font-weight:500;color:var(--text-dim)">Q1</span></div>
+      <div class="tl-content">
+        <div class="tl-kicker">1995 초 · 시민 연대</div>
+        <h3>인핵협 결성 — 30개 시민단체</h3>
+        <p>'인천앞바다 핵폐기장건설반대 범시민대책협의회(인핵협)' 결성.<sup class="ref" data-ref="3">3</sup> 덕적도 주민투쟁위원회 출범. 동인천역 광장 궐기대회, 답동성당 장기 농성으로 범시민운동 확대.</p>
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-content">
+        <div class="tl-kicker">1995 · 과학적 증거</div>
+        <h3>활성단층 발견 — 결정적 증거</h3>
+        <p>지질 조사에서 활성단층 확인.<sup class="ref" data-ref="4">4</sup> 핵폐기장 부적합 판정. 해상 운송 위험성 · 지진 취약성 등 과학적 반론이 정부 논리를 무너뜨림.</p>
+      </div>
+      <div class="tl-year amber">1995<br><span style="font-size:.7em;font-weight:500;color:var(--text-dim)">Q3</span></div>
+      <div class="tl-side">
+        <div class="news-clip">
+          <div class="masthead"><span>한겨레</span><span class="date">1995.07.04</span></div>
+          <h4>굴업도에서 활성단층 발견 … 핵폐기장 '과학적 부적합'</h4>
+          <p class="lede">지질학자 팀이 굴업도 해안 현지 조사에서 최근 지질 시대의 활성 단층을 확인. "방사성 폐기물 영구 저장소로 부적합." 정부 계획 재검토 불가피.</p>
+          <div class="byline"><span>과학부</span><span>1면 톱</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-side">
+        <div class="news-clip">
+          <div class="masthead"><span>중앙일보</span><span class="date">1995.11.29</span></div>
+          <h4>정부, 굴업도 핵폐기장 계획 전면 백지화</h4>
+          <p class="lede">정부가 굴업도 방사성 폐기물 처리장 건설 계획을 공식 철회. 발표 11개월 만. 시민사회 "지질학적 근거 + 연대의 승리" 환영. 향후 처분장 선정 방식 전면 재검토.</p>
+          <div class="byline"><span>사회부</span><span>citation-only · 인용 3줄</span></div>
+        </div>
+      </div>
+      <div class="tl-year green">1995<br><span style="font-size:.7em;font-weight:500;color:var(--text-dim)">11월</span></div>
+      <div class="tl-content">
+        <div class="tl-kicker">1995.11 · 정부 철회</div>
+        <h3>핵폐기장 계획 전면 백지화</h3>
+        <p>발표 11개월 만에 정부가 계획 철회.<sup class="ref" data-ref="1">1</sup> 시민 연대 + 과학적 근거가 이긴 한국 환경운동사의 결정적 승리.</p>
+        <div class="tl-quote">"작은 섬이 큰 정부를 멈췄다" — 에너지정의행동 아카이브<sup class="ref" data-ref="5">5</sup></div>
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-content">
+        <div class="tl-kicker">2000s · 개발 자본의 진입</div>
+        <h3>CJ '씨앤아이레저산업' 대부분 토지 매입</h3>
+        <p>CJ 계열사 씨앤아이레저산업이 굴업도 부지 대부분을 매입.<sup class="ref" data-ref="7">7</sup> 골프장 · 콘도 · 마리나를 포함한 대규모 관광단지 개발 추진. 환경단체 10년 넘게 반대.</p>
+      </div>
+      <div class="tl-year amber">2000s</div>
+      <div class="tl-side">
+        <div class="news-clip">
+          <div class="masthead"><span>한겨레</span><span class="date">2007.08.15</span></div>
+          <h4>"굴업도에 18홀 골프장? 천연기념물 터전인데…"</h4>
+          <p class="lede">CJ 계열사 씨앤아이레저산업이 굴업도 대부분을 매입, 대규모 리조트·골프장 개발 추진. 환경단체 "매·왕은점표범나비 서식지 파괴" 강력 반발.</p>
+          <div class="byline"><span>사회·환경부</span><span>citation-only</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-side">
+        <div class="news-clip">
+          <div class="masthead"><span>환경운동연합</span><span class="date">2014.10.11</span></div>
+          <h4>시민의 힘으로 지킨 굴업도 … CJ 골프장 철회</h4>
+          <p class="lede">10년간의 반대 운동 끝에 CJ가 굴업도 골프장 개발 계획 공식 철회. 환경영향평가 통과 실패 + 문화재청 천연기념물 지정 권고가 결정적. 두 번째 시민 승리.</p>
+          <div class="byline"><span>보도자료</span><span>kfem.or.kr</span></div>
+        </div>
+      </div>
+      <div class="tl-year green">2014</div>
+      <div class="tl-content">
+        <div class="tl-kicker">2014 · 두 번째 승리</div>
+        <h3>CJ 골프장 개발 계획 전면 철회</h3>
+        <p>환경 파괴 논란 · 특혜 의혹 · 문화재청 천연기념물 지정 권고 등이 맞물리며 CJ 측이 공식 철회 발표.<sup class="ref" data-ref="8">8</sup> 20년에 걸친 반대 운동의 결실.</p>
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-content">
+        <div class="tl-kicker">2020 · 새로운 형식의 위협</div>
+        <h3>해상풍력 발전 사업 허가 취득</h3>
+        <p>CJ 계열사가 관광단지 좌절 후 '친환경 에너지'로 방향 전환.<sup class="ref" data-ref="9">9</sup> 해상풍력 사업 허가 취득. 해저 케이블 · 기초 공사의 생태 영향은 평가 외 영역.</p>
+      </div>
+      <div class="tl-year red">2020</div>
+      <div class="tl-side">
+        <div class="news-clip">
+          <div class="masthead"><span>한국경제</span><span class="date">2020.12.04</span></div>
+          <h4>CJ 계열, '굴업도 해상풍력' 사업 허가 … 238MW 규모</h4>
+          <p class="lede">CJ 계열사가 인천 옹진군 굴업도 해상풍력 발전 사업 허가 취득. 총 238MW 규모, 2026년 착공 목표. 친환경 전환 가속. 환경단체 "또 다른 얼굴의 개발" 경계.</p>
+          <div class="byline"><span>산업부</span><span>citation-only</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-side">
+        <div class="news-clip">
+          <div class="masthead"><span>DART 전자공시</span><span class="date">2021.03.11</span></div>
+          <h4>씨앤아이레저산업 → 굴업풍력개발㈜ 물적분할 공시</h4>
+          <p class="lede">금융감독원 전자공시시스템 공시. 씨앤아이레저산업이 해상풍력 사업 부문을 물적분할해 비상장 SPC '굴업풍력개발㈜' 신설. SK디앤디·대우건설과 합작 협약.</p>
+          <div class="byline"><span>공시정보</span><span>dart.fss.or.kr</span></div>
+        </div>
+      </div>
+      <div class="tl-year amber">2021</div>
+      <div class="tl-content">
+        <div class="tl-kicker">2021 · 기업 구조 변경</div>
+        <h3>'굴업풍력개발㈜' 물적 분할 설립</h3>
+        <p>씨앤아이레저산업에서 굴업풍력개발㈜가 물적 분할로 신설. SK디앤디 · 대우건설과 합작 협약.<sup class="ref" data-ref="10">10</sup> 비상장 SPC 구조로 공시 추적 제한.</p>
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-content">
+        <div class="tl-kicker">2023–2025 · 평가 단계</div>
+        <h3>환경영향평가 진행</h3>
+        <p>해양환경 · 조류 충돌 · 수중소음 등 항목별 평가서 초안 제출. 시민단체 · 지역 주민의 의견서 제출 단계.</p>
+      </div>
+      <div class="tl-year amber">'23–'25</div>
+      <div class="tl-side">
+        <div class="news-clip">
+          <div class="masthead"><span>인천투데이</span><span class="date">2024.05.22</span></div>
+          <h4>굴업도 해상풍력 평가서 공람 시작 … 시민 의견 접수</h4>
+          <p class="lede">환경부 공람 공고. 해양생태 · 어업영향 · 조류 충돌 · 수중소음 항목 포함. 그러나 해저 케이블 전자기장 · 사회영향 평가는 누락. 시민단체 "재평가 요구."</p>
+          <div class="byline"><span>환경 담당</span><span>incheontoday.com</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-side">
+        <div class="news-clip" style="border-left:4px solid var(--danger)">
+          <div class="masthead"><span>뉴리프 전망</span><span class="date">2026 Q1</span></div>
+          <h4>"1995년의 반복인가, 1994년의 재현인가"</h4>
+          <p class="lede">뉴리프는 해상풍력 반대가 아니라 '이 장소·이 방식' 재검토를 요구한다. 착공 전 시민 의견서 · 시민과학 모니터링 · 대안 입지 제안이 가능한 마지막 창.</p>
+          <div class="byline"><span>뉴리프 운영팀</span><span>newleaf.kr</span></div>
+        </div>
+      </div>
+      <div class="tl-year red">2026</div>
+      <div class="tl-content">
+        <div class="tl-kicker">2026 · 임박한 착공</div>
+        <h3>해상풍력 착공 예정 · 시민 대응의 시간</h3>
+        <p>착공 전 의견서 · 시민 모니터링 · 과학 증거 축적이 유효한 마지막 창.<br>뉴리프는 이 순간을 <strong style="color:var(--vitality-bright)">30년 전 승리의 재현</strong>으로 만들고자 합니다.</p>
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-content">
+        <div class="tl-kicker">2030 · 목표</div>
+        <h3>영구 보전 · 유네스코 지질공원 등재</h3>
+        <p>세계지질공원 · 해양보호구역 · 국가정원 수준의 영구적 · 포괄적 보호 체제 구축.</p>
+      </div>
+      <div class="tl-year green">2030</div>
+      <div class="tl-side"></div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============ 06. INTERLUDE — JOHN MUIR ============ -->
+<section class="quote-section" data-label="간주">
+  <div class="quote-inner">
+    <div class="quote-mark">"</div>
+    <p class="quote-text">자연에서 무엇이든 <em>하나만 떼어내려고</em> 해보라.<br>그것이 <em>우주의 모든 것</em>과 연결되어 있음을 발견하게 될 것이다.</p>
+    <p class="quote-trans">When we try to pick out anything by itself, we find it hitched to everything else in the universe.</p>
+    <div class="person-card">
+      <img class="person-portrait" src="https://upload.wikimedia.org/wikipedia/commons/2/2a/John_Muir_Cane.JPG" alt="John Muir 초상" loading="lazy" style="object-position:center 25%">
+      <div class="person-info">
+        <div class="name">John Muir · 존 뮤어</div>
+        <div class="lived">1838 – 1914 · 자연주의자</div>
+        <div class="bio">스코틀랜드 태생 미국 자연주의자. 시에라클럽(Sierra Club) 창립자로 요세미티 국립공원 설립을 이끔. 미국 국립공원 시스템의 아버지로 불리며, 야생의 '내재적 가치'를 논증한 현대 보전 사상의 원류.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 07. THREAT / NETWORK ============ -->
+<section class="threat-section" id="section-threat" data-label="해상풍력의 구조">
+  <div class="container-text">
+    <div class="threat-header">
+      <div class="threat-tag reveal">URGENT · 2026 임박</div>
+      <h2 class="section-title reveal">'친환경'이라는 <em style="color:var(--danger-bright)">이름의 위협</em></h2>
+      <p class="section-kicker reveal">해상풍력은 탄소중립의 일환으로 장려되지만, 굴업도 해역에 지어질 발전단지의 <strong>기초 공사·해저 케이블·수중소음·조류 충돌</strong>은 평가 받지 않은 영역이 많습니다.<sup class="ref" data-ref="9">9</sup> 누가 무엇을 짓고 있는지부터 다시 봅니다.</p>
+    </div>
+  </div>
+  <div class="network-diagram reveal">
+    <div class="net-row">
+      <div class="net-node root">
+        <div class="role">모기업 · 토지 소유</div>
+        <h4>CJ 그룹 / 씨앤아이레저산업</h4>
+        <p>2000년대 굴업도 면적 대부분 매입. 관광단지(골프장·콘도) 추진 후 2014년 철회. 2020년 해상풍력으로 전환.<sup class="ref" data-ref="7">7</sup></p>
+        <span class="dart-ref">DART: 씨앤아이 공시 8건</span>
+      </div>
+    </div>
+    <div class="net-row">
+      <div class="net-node leaf">
+        <div class="role">2021 신설 SPC · 시행 주체</div>
+        <h4>굴업풍력개발㈜</h4>
+        <p>씨앤아이에서 물적분할로 신설. 비상장 → 공시 추적 한계. 모기업 공시로 간접 확인.<sup class="ref" data-ref="10">10</sup></p>
+      </div>
+      <div class="net-node leaf">
+        <div class="role">합작 파트너</div>
+        <h4>SK디앤디</h4>
+        <p>신재생에너지 개발 사업자. DART 공시 30건. 해상풍력 지분 참여.</p>
+        <span class="dart-ref">DART: SK디앤디 공시 30건</span>
+      </div>
+      <div class="net-node leaf">
+        <div class="role">EPC 건설</div>
+        <h4>대우건설 (예상)</h4>
+        <p>플랜트·해상 구조물 건설 담당. 최종 계약 단계.</p>
+      </div>
+    </div>
+  </div>
+  <div class="container-text" style="margin-top:3.5rem">
+    <h3 style="font-size:1.35rem;font-weight:700;margin-bottom:1.1rem;letter-spacing:-0.01em;text-align:center">평가에서 누락된 영향</h3>
+  </div>
+  <div class="impact-grid">
+    <div class="impact-card">
+      <h4>해저 기초 공사 소음</h4>
+      <p>말뚝 항타(piling) 시 발생하는 고강도 수중소음은 상괭이·해양포유류의 방향감각·번식 행동을 교란.</p>
+      <div class="impact-meta">평가 상태 · 부분 미평가</div>
+    </div>
+    <div class="impact-card">
+      <h4>해저 케이블 전자기장</h4>
+      <p>수 km 해저 케이블의 전자기장이 어류 산란·회유에 미치는 영향 연구 부족. 굴업도 주변 어장 의존 주민 생계 직격.</p>
+      <div class="impact-meta">평가 상태 · 미평가</div>
+    </div>
+    <div class="impact-card">
+      <h4>조류 충돌 (매·검은머리물떼새)</h4>
+      <p>굴업도는 매 번식지이자 철새 중간 기착지. 터빈 블레이드와 조류 충돌은 번식쌍 감소로 직결.</p>
+      <div class="impact-meta">평가 상태 · 항목별 한정</div>
+    </div>
+    <div class="impact-card">
+      <h4>관광·시민 접근성 저하</h4>
+      <p>경관 변화·선박 항로 변경·주민 생활권 침범. 30년간 시민이 지킨 접근권의 재검토.</p>
+      <div class="impact-meta">평가 상태 · 사회영향 부재</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 08. SPECIES — 이미지 카드 ============ -->
+<section class="species-section" id="section-species" data-label="생명의 섬">
+  <div class="container-text">
+    <div class="section-num reveal">Ⅲ · 생명의 섬</div>
+    <h2 class="section-title reveal">이 섬이 지키고 있는 <em>다섯 생명</em></h2>
+    <p class="section-kicker reveal">굴업도에는 국가가 법으로 보호하는 멸종위기종이 최소 5종 이상 서식합니다. 매 2쌍의 번식, 먹구렁이 탈피각, 왕은점표범나비 국내 최대 군락. 이 섬이 개발되면 이들의 서식지는 복원될 수 없습니다.<sup class="ref" data-ref="12">12</sup></p>
+  </div>
+
+  <div class="species-grid reveal-stagger">
+
+    <div class="species-card">
+      <div class="species-img-wrap">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/8/80/Peregrine_falcon_tilting_head.jpeg" alt="매 (Falco peregrinus)" loading="lazy">
+        <div class="species-img-credit">Wikimedia · KOGL</div>
+      </div>
+      <div class="species-body">
+        <div class="species-head">
+          <div><div class="species-sci">Falco peregrinus</div><h4>매</h4></div>
+          <span class="species-grade grade-crit">Ⅰ · 천연기념물</span>
+        </div>
+        <p>지구상 가장 빠른 동물(급강하 시속 390km). 굴업도 개머리언덕 인근에서 <strong>번식쌍 2쌍</strong> 확인. 한반도 서해안 최우선 번식지 중 하나.</p>
+        <div class="species-data">
+          <span>번식쌍<strong>2</strong></span>
+          <span>관찰<strong>eBird</strong></span>
+          <span>등급<strong>Ⅰ급</strong></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="species-card">
+      <div class="species-img-wrap">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/37/Elaphe_Schrenckii.jpg/960px-Elaphe_Schrenckii.jpg" alt="먹구렁이 (Elaphe schrenckii)" loading="lazy">
+        <div class="species-img-credit">Wikimedia · CC BY-SA 4.0</div>
+      </div>
+      <div class="species-body">
+        <div class="species-head">
+          <div><div class="species-sci">Elaphe schrenckii</div><h4>먹구렁이</h4></div>
+          <span class="species-grade grade-crit">Ⅰ급</span>
+        </div>
+        <p>한국 최대 뱀 종(최대 2m+). 2026년 3월 탐사에서 <strong>탈피 껍질 1점 발견</strong>. 습지 인근 서식 확인. 쥐 개체수 조절 핵심 포식자.</p>
+        <div class="species-data">
+          <span>발견<strong>2026.03</strong></span>
+          <span>증거<strong>탈피각</strong></span>
+          <span>등급<strong>Ⅰ급</strong></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="species-card">
+      <div class="species-img-wrap">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/252-Fabriciana_nerippe.JPG/960px-252-Fabriciana_nerippe.JPG" alt="왕은점표범나비 (Argynnis nerippe)" loading="lazy">
+        <div class="species-img-credit">Wikimedia · CC BY-SA 4.0</div>
+      </div>
+      <div class="species-body">
+        <div class="species-head">
+          <div><div class="species-sci">Argynnis nerippe</div><h4>왕은점표범나비</h4></div>
+          <span class="species-grade grade-end">Ⅱ급</span>
+        </div>
+        <p>한반도에서 서식지가 급감 중인 초지 나비. 굴업도가 <strong>국내 최대 군락지</strong>로 학계 보고.<sup class="ref" data-ref="12">12</sup> 초지 생태계의 건강 지표종.</p>
+        <div class="species-data">
+          <span>서식<strong>국내 최대</strong></span>
+          <span>유형<strong>초지</strong></span>
+          <span>등급<strong>Ⅱ급</strong></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="species-card">
+      <div class="species-img-wrap">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/Far_Eastern_Oystercatcher%2C_Nikolai_Bay%2C_Khabarovsk_Krai%2C_Russia_01.jpg/960px-Far_Eastern_Oystercatcher%2C_Nikolai_Bay%2C_Khabarovsk_Krai%2C_Russia_01.jpg" alt="검은머리물떼새" loading="lazy">
+        <div class="species-img-credit">Wikimedia · CC0</div>
+      </div>
+      <div class="species-body">
+        <div class="species-head">
+          <div><div class="species-sci">Haematopus ostralegus osculans</div><h4>검은머리물떼새</h4></div>
+          <span class="species-grade grade-prot">천연기념물</span>
+        </div>
+        <p>갯벌·해안 서식 물떼새. 한국 고유 아종. 굴업도 해안에서 지속 관찰. 해상풍력 건설 영향 직접 취약종.</p>
+        <div class="species-data">
+          <span>서식<strong>해안·갯벌</strong></span>
+          <span>보호<strong>천연기념물</strong></span>
+          <span>고유 아종<strong>O</strong></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="species-card">
+      <div class="species-img-wrap">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/dc/Yangtze_finless_porpoise%2C_10_November_2006.jpg/960px-Yangtze_finless_porpoise%2C_10_November_2006.jpg" alt="상괭이 (Neophocaena asiaeorientalis)" loading="lazy">
+        <div class="species-img-credit">Wikimedia · CC BY 3.0</div>
+      </div>
+      <div class="species-body">
+        <div class="species-head">
+          <div><div class="species-sci">Neophocaena asiaeorientalis</div><h4>상괭이 · 토종 돌고래</h4></div>
+          <span class="species-grade grade-prot">해양보호종</span>
+        </div>
+        <p>한국 고유 돌고래 종. 토끼섬 주변 해역 출몰. 서해안 생태 건강성의 바로미터. <strong>해저 공사 수중소음에 특히 취약</strong>.</p>
+        <div class="species-data">
+          <span>관찰<strong>토끼섬 주변</strong></span>
+          <span>보호<strong>해양보호종</strong></span>
+          <span>풍력 영향<strong>매우 높음</strong></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="species-card clickable" id="openCitizenModal" tabindex="0" role="button" aria-label="시민과학 데이터 자세히 보기">
+      <div class="species-img-wrap" style="background:linear-gradient(135deg,var(--ocean-raised),rgba(93,140,106,.2))">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Aerial_photograph_of_Gureopdo%2C_South_Korea.jpg" alt="굴업도 항공" loading="lazy" style="opacity:.55">
+        <div class="species-img-credit">Citizen Science</div>
+      </div>
+      <div class="species-body">
+        <div class="species-head">
+          <div><div class="species-sci">GBIF · iNaturalist · eBird</div><h4>시민과학 데이터</h4></div>
+          <span class="species-grade grade-data">DATA · 100+</span>
+        </div>
+        <p>굴업도·인접 해역에서 공개 시민과학 플랫폼에 축적된 종 관측 기록.<br>추가 종 발굴과 장기 모니터링의 기반.</p>
+        <div class="species-data">
+          <span>GBIF<strong>50건</strong></span>
+          <span>iNaturalist<strong>50건</strong></span>
+          <span>공개 CC<strong>O</strong></span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============ 09. LEGAL ============ -->
+<section class="legal-section" id="section-legal" data-label="법적 진공">
+  <div class="container-text">
+    <div class="section-num reveal">Ⅳ · 법적 진공</div>
+    <h2 class="section-title reveal">법은 있다. <em>영구적 보호</em>는 없다.</h2>
+    <p class="section-kicker reveal">굴업도는 특정도서·생태계 1등급 지역으로 부분적 보호를 받습니다. 그러나 개발 승인을 최종 저지할 <strong>상위 법률</strong>은 없습니다. 이것이 뉴리프가 2030년까지 메우려는 갭입니다.<sup class="ref" data-ref="14">14</sup></p>
+  </div>
+  <div class="legal-grid" style="margin-top:3rem">
+    <div class="legal-have">
+      <h3>✅ 현재 적용 중인 법</h3>
+      <div class="legal-item"><strong>독도 등 도서지역 생태계 보전 특별법</strong><span>환경부 · 특정도서 지정</span><p>생태·경관·문화 가치가 높은 무인도서 지정·보호. 행위 제한 있으나 개발 최종 저지력 한정.</p></div>
+      <div class="legal-item"><strong>자연환경보전법</strong><span>환경부 · 생태계 1등급</span><p>생태자연도 1등급 지역 대상. 개발 행위 시 환경영향평가 필수.</p></div>
+      <div class="legal-item"><strong>해양환경 관리법</strong><span>해양수산부</span><p>해양 오염 방지·해양보호구역 지정 근거.</p></div>
+      <div class="legal-item"><strong>문화재보호법</strong><span>국가유산청</span><p>천연기념물 지정 가능(매·검은머리물떼새). 개체·서식지 보호.</p></div>
+    </div>
+    <div class="legal-gap">
+      <h3>⚠ 부재한 보호</h3>
+      <div class="legal-item"><strong>유네스코 세계지질공원</strong><span>국제 · 영구 보호</span><p>9천만 년 응회암·해식와·타포니는 기준 충족. 그러나 국가·국제 등재 추진 단계 미진입.</p></div>
+      <div class="legal-item"><strong>해양보호구역 (MPA)</strong><span>해수부 · 영구 지정</span><p>상괭이 서식지·해저 공사 규제 근거. 지정 추진 시 풍력 착공 저지 가능.</p></div>
+      <div class="legal-item"><strong>국가정원 / 생태관광 특구</strong><span>환경부 · 지자체</span><p>보전 + 지속가능 활용 모델. 주민 경제·보전 양립 구조.</p></div>
+      <div class="legal-item"><strong>특별법 (굴업도 특별법)</strong><span>국회 입법</span><p>섬 단위 영구 보호 법률. 제주도·울릉도 선례 존재.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 10. FIELD — 안개 스토리 ============ -->
+<section class="field-section" id="section-field" data-label="현장의 목소리">
+  <div class="field-wrap">
+    <div class="field-photo">
+      <div class="field-photo-label">260328 · 덕적도 여객선 터미널 — 안개</div>
+    </div>
+    <div class="field-story">
+      <div class="ep reveal">Ⅴ · 현장의 목소리</div>
+      <h2 class="reveal">2026년 <em>3월 28일</em>, 우리는 굴업도에 닿지 못했다.</h2>
+      <p class="reveal">그날 아침 덕적도 여객선 터미널은 하얗게 덮였다. 안개가 바다를 지웠고, 배는 뜨지 못했다.</p>
+      <p class="reveal">대신 우리는 터미널 대합실에서, 그리고 돌아오는 선실에서 회의를 열었다. 누구는 매 번식 확인 계획을 다시 짰고, 누구는 시민과학 데이터 수집 양식을 수정했다. 안개에 갇힌 반나절이 다음 기획의 동력이 되었다.</p>
+      <div class="dialog reveal">
+        <strong>뉴리프 탐사팀 회의록에서</strong>
+        "도착하지 못한 것이 오히려 이 섬이 왜 특별한지를 보여준다. 쉽게 닿을 수 없어서 남아있는 생태. 관광 개발로 다리를 놓는 순간 이 거리감은 사라진다. 안개 속에서 우리는 서로에게 조용히 물었다. <em>이 섬을 지키기 위해 우리가 할 수 있는 일은 무엇일까.</em>"
+      </div>
+      <p class="reveal">누군가는 의견서 한 통을, 누군가는 시민과학 관측 하나를, 누군가는 후원 한 줄을 떠올렸다. 각자의 자리에서 할 수 있는 일이 있었고, 그것을 나누는 저녁이었다.</p>
+      <p class="reveal">배를 다시 돌린 그 바다 위에서 우리는 약속을 남겼다.</p>
+      <div class="field-promise reveal">다시 올게, 굴업도.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 11. MAP ============ -->
+<section class="map-section" id="section-map" data-label="지도">
+  <div class="container-text">
+    <div class="section-num reveal">Ⅵ · 지도</div>
+    <h2 class="section-title reveal">굴업도의 <em>좌표</em></h2>
+    <p class="section-kicker reveal">지질·생태·위협의 포인트를 한 장의 지도 위에 배치합니다. 클릭하면 각 장소의 맥락이 펼쳐집니다.</p>
+  </div>
+  <div class="container">
+    <div class="map-container reveal">
+      <div id="leaflet-map"></div>
+    </div>
+    <div class="map-legend reveal">
+      <span class="leg-rock">지질 포인트 (응회암·시스택·해식와)</span>
+      <span class="leg-eco">생태 포인트 (보호종 서식)</span>
+      <span class="leg-threat">위협 포인트 (풍력 예정지)</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 12. ROADMAP ============ -->
+<section class="roadmap-section" id="section-roadmap" data-label="뉴리프 2030">
+  <div class="container-text">
+    <div class="section-num reveal">Ⅶ · 뉴리프 2030</div>
+    <h2 class="section-title reveal">다음 <em>5년</em>의 계획</h2>
+    <p class="section-kicker reveal">보전은 한 번의 승리가 아니라 <strong>매년의 데이터</strong>입니다. 뉴리프는 2030년까지 굴업도를 영구적·국제 수준으로 보호합니다.</p>
+  </div>
+  <div class="roadmap-grid reveal-stagger">
+    <div class="roadmap-card"><div class="roadmap-year">2026</div><h4>디지털 아카이브 · 해상풍력 대응</h4><ul><li>증거 기반 웹 아카이브 공개 (본 페이지)</li><li>환경영향평가 시민 의견서 제출</li><li>정기 모니터링(계절별 4회) 착수</li><li>시민과학 데이터 축적</li></ul></div>
+    <div class="roadmap-card"><div class="roadmap-year">2027</div><h4>법적·학술적 근거 강화</h4><ul><li>매·먹구렁이 서식 학술 등재</li><li>해양보호구역(MPA) 지정 추진</li><li>문화재청 천연기념물 지정 청원</li><li>기업 ESG 관점 영향 보고서</li></ul></div>
+    <div class="roadmap-card"><div class="roadmap-year">2028</div><h4>국제 연대·유네스코 준비</h4><ul><li>유네스코 세계지질공원 예비 신청</li><li>국제 생태 NGO 협력 (IUCN 등)</li><li>동아시아 섬 보전 네트워크 참여</li><li>다국어 아카이브 확장</li></ul></div>
+    <div class="roadmap-card"><div class="roadmap-year">2029</div><h4>지속가능 관광·주민 공동체</h4><ul><li>생태관광 가이드라인 수립</li><li>주민·지자체 협력 모델</li><li>탐방 프로그램 (월 1회)</li><li>해양 쓰레기 수거 시스템화</li></ul></div>
+    <div class="roadmap-card" style="border-top-color:var(--rust-bright)"><div class="roadmap-year" style="color:var(--rust-bright)">2030</div><h4>영구 보전 체제·목표년</h4><ul><li>유네스코 세계지질공원 등재</li><li>해양보호구역 지정 완료</li><li>국가정원 또는 특별법 입법</li><li>30년 아카이브 집대성</li></ul></div>
+  </div>
+</section>
+
+<!-- ============ 13. CTA FORM ============ -->
+<section class="cta-section" id="section-cta" data-label="함께하기">
+  <div class="container-text">
+    <div class="section-num reveal">Ⅷ · 함께하기</div>
+    <h2 class="reveal">30년 전 핵폐기장을 막았던<br>그 <em>시민의 힘</em>으로.</h2>
+    <p class="cta-lead reveal">이번에는 굴업도를 영구적으로 지킬 차례입니다. 한 번의 서명, 한 번의 탐방, 한 번의 의견서가 다음 30년을 만듭니다.</p>
+  </div>
+  <form class="cta-form reveal" onsubmit="handleSubmit(event)">
+    <div>
+      <label>이름 *</label>
+      <input type="text" name="name" required placeholder="홍길동">
+    </div>
+    <div>
+      <label>이메일 *</label>
+      <input type="email" name="email" required placeholder="you@example.com">
+    </div>
+    <div>
+      <label>텔레그램 아이디</label>
+      <input type="text" name="telegram" placeholder="@username">
+    </div>
+    <div>
+      <label>연락 가능 시간</label>
+      <select name="time">
+        <option>언제든</option>
+        <option>평일 오전</option>
+        <option>평일 오후</option>
+        <option>평일 저녁</option>
+        <option>주말</option>
+      </select>
+    </div>
+    <div>
+      <label>소속 (선택)</label>
+      <input type="text" name="org" placeholder="시민단체 · 기업 · 개인">
+    </div>
+    <div>
+      <label>어디서 알게 됐나요?</label>
+      <select name="referrer">
+        <option>발표 · 세미나</option>
+        <option>SNS · 텔레그램</option>
+        <option>지인 추천</option>
+        <option>언론 보도</option>
+        <option>검색</option>
+        <option>기타</option>
+      </select>
+    </div>
+    <div class="field-full">
+      <label>참여 방식 (복수 선택)</label>
+      <div class="radio-group">
+        <label><input type="checkbox" name="method" value="visit"> 굴업도 탐방 신청</label>
+        <label><input type="checkbox" name="method" value="opinion"> 환경영향평가 의견서 제출</label>
+        <label><input type="checkbox" name="method" value="donate"> 후원</label>
+        <label><input type="checkbox" name="method" value="volunteer"> 시민 모니터링 참여</label>
+        <label><input type="checkbox" name="method" value="share"> SNS 공유·콘텐츠 확산</label>
+        <label><input type="checkbox" name="method" value="partner"> 단체·기업 파트너십</label>
+      </div>
+    </div>
+    <div class="field-full">
+      <label>전하고 싶은 말·질문</label>
+      <textarea name="message" placeholder="어떤 방식으로 굴업도와 만나고 싶으신가요?"></textarea>
+    </div>
+
+    <!-- 허니팟 (봇 차단용, 사람에게는 안 보임) -->
+    <div style="position:absolute;left:-9999px;opacity:0;pointer-events:none" aria-hidden="true">
+      <label>Website (비워두세요)</label>
+      <input type="text" name="website" tabindex="-1" autocomplete="off">
+    </div>
+
+    <div class="field-full" style="margin-top:.5rem">
+      <label style="display:flex;align-items:flex-start;gap:.7rem;padding:.85rem 1rem;background:var(--ocean-deep);border:1.5px solid var(--line-strong);border-radius:.6rem;cursor:pointer;font-family:var(--font-sans);font-size:.9rem;font-weight:400;color:var(--text);text-transform:none;letter-spacing:-0.005em;line-height:1.55">
+        <input type="checkbox" name="consent" required style="margin-top:.25rem;accent-color:var(--vitality-bright);width:18px;height:18px;flex:0 0 auto">
+        <span>
+          <strong style="font-weight:600">개인정보 수집·이용에 동의합니다.</strong><br>
+          <span style="color:var(--text-dim);font-size:.82rem">수집 항목: 이름·이메일·연락처·메시지. 목적: 참여 안내·소통. 보관: 최대 1년.
+          <a href="./privacy.html" target="_blank" style="color:var(--rust-bright);border-bottom:1px dotted var(--rust)">전문 보기</a></span>
+        </span>
+      </label>
+    </div>
+
+    <div class="submit-row">
+      <button type="button" class="btn btn-outline" onclick="shareArchive()">이 아카이브 공유</button>
+      <button type="submit" class="btn btn-primary">뉴리프에 연결하기</button>
+    </div>
+  </form>
+  <div class="cta-side">
+    <span>직접 연락: <a href="mailto:contact@newleaf.kr">contact@newleaf.kr</a></span>
+    <span>텔레그램: <a href="https://t.me/newleaf_gulupdo">@newleaf_gulupdo</a></span>
+    <span>환경영향평가 <a href="https://www.eiass.go.kr">공람 확인</a></span>
+  </div>
+</section>
+
+<!-- ============ 14. POST-SUBMIT FLOW — 신청 후 어떻게 되나요 ============ -->
+<section class="flow-section" data-label="신청 이후">
+  <div class="container-text">
+    <div class="section-num reveal">Ⅸ · 신청 이후</div>
+    <h2 class="section-title reveal">신청하시면, <em>이렇게 이어집니다</em></h2>
+    <p class="section-kicker reveal">폼을 제출하면 뉴리프 운영진이 48시간 내 개별 연락드립니다. 탐방·의견서·후원 각각의 트랙으로 나뉘어 진행되며, 모든 단계에서 취소·변경이 가능합니다.</p>
+  </div>
+  <div class="flow-track reveal-stagger">
+    <div class="flow-step">
+      <div class="step-num">1</div>
+      <h5>접수 확인</h5>
+      <p>신청 즉시 자동 회신 메일 + 운영진 내부 알림. 개인정보는 암호화 저장, 제3자 제공 없음.</p>
+      <div class="step-time">즉시 · 자동</div>
+    </div>
+    <div class="flow-step">
+      <div class="step-num">2</div>
+      <h5>담당자 개별 연락</h5>
+      <p>참여 방식에 맞춰 탐방 리드·의견서 매니저·후원 매니저 중 한 명이 개별 메시지 발송. 선택한 연락 시간 기준.</p>
+      <div class="step-time">48시간 이내</div>
+    </div>
+    <div class="flow-step">
+      <div class="step-num">3</div>
+      <h5>맞춤 안내·가이드</h5>
+      <p>탐방 일정 조율 / 의견서 템플릿 제공 / 후원 방법 안내 / 모니터링 교육 일정. 필요한 자료만 정확히 전달.</p>
+      <div class="step-time">1주 이내</div>
+    </div>
+    <div class="flow-step">
+      <div class="step-num">4</div>
+      <h5>지속 연결</h5>
+      <p>월 1회 뉴스레터 · 주요 동향 텔레그램 · 연 2회 정기 탐방 · 연차 리포트. 언제든 구독 해제 가능.</p>
+      <div class="step-time">장기</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 15. EPILOGUE — ALDO LEOPOLD ============ -->
+<section class="quote-section" data-label="마지막 말">
+  <div class="quote-inner">
+    <div class="quote-mark">"</div>
+    <p class="quote-text">어떤 행위가 <em>생물 공동체의 온전함, 안정, 아름다움</em>을 지킨다면 옳다.<br>그 반대라면 그르다.</p>
+    <p class="quote-trans">A thing is right when it tends to preserve the integrity, stability, and beauty of the biotic community. It is wrong when it tends otherwise.</p>
+    <div class="person-card">
+      <img class="person-portrait" src="https://upload.wikimedia.org/wikipedia/commons/6/63/Aldo_Leopold_Sheffield_Scientific_School_Class_of_1908.jpg" alt="Aldo Leopold 초상" loading="lazy">
+      <div class="person-info">
+        <div class="name">Aldo Leopold · 알도 레오폴드</div>
+        <div class="lived">1887 – 1948 · 산림학자·생태학자</div>
+        <div class="bio">미국 산림청 첫 야생생물관리 전문가. 1949년 사후 출간된 『모래 군(郡)의 열두 달』에서 '토지 윤리(Land Ethic)' 개념을 제안, 인간 중심이 아닌 생태 공동체 중심의 윤리를 제시. 현대 보전 생물학의 철학적 기반.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="footer-grid">
+    <div>
+      <div class="footer-brand">뉴리프 — NewLeaf</div>
+      <p class="footer-desc">굴업도를 비롯한 한국의 생태계를 시민의 힘으로 영구 보전합니다. 본 아카이브는 81건 이상의 공개 문헌·학술 자료·시민과학 데이터를 바탕으로 작성되었습니다.</p>
+    </div>
+    <div>
+      <h5>아카이브</h5>
+      <ul>
+        <li><a href="#section-timeline">저항의 역사</a></li>
+        <li><a href="#section-species">생명의 섬</a></li>
+        <li><a href="#section-threat">해상풍력</a></li>
+        <li><a href="#section-legal">법적 진공</a></li>
+        <li><a href="#section-map">지도</a></li>
+      </ul>
+    </div>
+    <div>
+      <h5>연결·법적 고지</h5>
+      <ul>
+        <li><a href="mailto:contact@newleaf.kr">이메일</a></li>
+        <li><a href="https://t.me/newleaf_gulupdo">텔레그램</a></li>
+        <li><a href="#section-cta">탐방·의견서</a></li>
+        <li><a href="./privacy.html">개인정보 처리방침</a></li>
+        <li><a href="#">Instagram</a></li>
+        <li><a href="#">GitHub</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2026 사단법인 뉴리프(NewLeaf) · 굴업도 생태 아카이브 프로젝트</p>
+    <p>Hero image: Wikimedia Commons · Mosbatho · CC BY 4.0 (2019) · 인물 초상: Wikimedia Public Domain · 보호종: Wikimedia CC BY / CC0 / KOGL</p>
+    <p>본 아카이브의 주장에는 인라인 각주가 달려 있으며, 출처 등급(학술/정부/언론)은 각주 패널에서 확인할 수 있습니다. 언론 인용은 'citation-only' 원칙으로 제목·URL·3줄 이내 발췌만 수록합니다.</p>
+    <p style="margin-top:.8rem"><a href="./privacy.html" style="color:var(--rust-bright)">개인정보 처리방침</a></p>
+  </div>
+</footer>
+
+<!-- 각주 패널 -->
+<aside class="footnote-panel" id="footnotePanel" role="dialog" aria-label="출처 상세">
+  <button class="footnote-close" id="footnoteClose" aria-label="닫기">×</button>
+  <h4 id="fn-label">출처 · Reference</h4>
+  <div id="fn-content"></div>
+</aside>
+
+<!-- 시민과학 모달 -->
+<div class="modal-overlay" id="citizenModal" role="dialog" aria-modal="true" aria-labelledby="citizenModalTitle">
+  <div class="modal">
+    <button class="modal-close" id="citizenModalClose" aria-label="닫기">×</button>
+    <div class="modal-header">
+      <div class="kicker">시민과학 아카이브 · Species Archive</div>
+      <h3 id="citizenModalTitle">굴업도 서식 보호종 · <em style="font-style:normal;color:var(--rust-bright)">공개 아카이브 참고 이미지</em></h3>
+      <p>굴업도·인접 해역에서 관측·서식이 확인된 주요 보호종의 <strong>참고 이미지</strong>입니다. 탐사팀이 직접 촬영한 종별 고해상도 사진은 아직 축적 중이며, 이 모달의 이미지는 Wikimedia Commons의 공개 저작물(CC/Public Domain/KOGL)에서 가져온 <em>같은 종 또는 근연 개체</em>의 참고 사진입니다. 실제 굴업도 개체 관측 <strong>기록</strong>은 아래 4개 공개 DB에서 확인할 수 있습니다.</p>
+    </div>
+    <div class="modal-body">
+      <div class="modal-section-title">보호종 참고 이미지 (5종)</div>
+      <div class="modal-img-grid" id="citizenImgGrid"></div>
+
+      <div class="modal-section-title">공개 관측 DB에서 직접 확인하기</div>
+      <div class="modal-links">
+        <a class="modal-link" href="https://www.gbif.org/occurrence/search?q=Gulupdo" target="_blank" rel="noopener"><div><strong>GBIF · Gulupdo 검색</strong><span>전 세계 생물다양성 정보 · 실제 관측 좌표</span></div><span class="arrow">→</span></a>
+        <a class="modal-link" href="https://www.inaturalist.org/places/search?q=gulupdo" target="_blank" rel="noopener"><div><strong>iNaturalist · 굴업도</strong><span>시민과학 관측 기록 · CC 라이선스</span></div><span class="arrow">→</span></a>
+        <a class="modal-link" href="https://ebird.org/region/KR-28" target="_blank" rel="noopener"><div><strong>eBird · 인천 KR-28</strong><span>조류 관측 데이터베이스</span></div><span class="arrow">→</span></a>
+        <a class="modal-link" href="https://species.nibr.go.kr" target="_blank" rel="noopener"><div><strong>국립생물자원관 (NIBR)</strong><span>종별 분포·서식 공식 DB</span></div><span class="arrow">→</span></a>
+      </div>
+
+      <div class="modal-note">
+        <strong style="color:var(--text)">왜 참고 이미지인가:</strong> 굴업도 개체를 직접 촬영하려면 현장 접근 + 전문 장비 + 장기 대기가 필요합니다. 본 아카이브는 '관측 기록(정량)'과 '참고 이미지(정성)'를 분리해 제시하며, 모든 참고 이미지는 공개 저작권 이미지만 사용합니다. 탐사팀의 직접 촬영본은 2026년 모니터링 진행에 따라 단계적으로 추가됩니다.
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+<script>
+// ============================================================
+// 출처 데이터 — 증거 위계 구분
+// tier: primary (1차 증거·딥링크 존재) / secondary (2차·검색결과) / reconstructed (뉴리프 재구성)
+// screenshot: [...] 배열 — ../02_문서/출처_스크린샷/ 에 파일이 있으면 자동 표시
+// ============================================================
+const SCREENSHOT_BASE = '../02_문서/출처_스크린샷/';
+const REFS = {
+  1: {
+    title: '굴업도 핵폐기장 반대 운동 (1994~1995) · 역사 개괄',
+    source: '한국어 위키피디아 · 국가기록원',
+    reliability: 'high',
+    type: '백과 · 공공 아카이브',
+    year: '1994 – 1995 (상시)',
+    desc: '정부의 굴업도 지정(1994.12) → 덕적도 주민 농성 → 인핵협 결성 → 활성단층 발견 → 정부 철회(1995.11). 한국어 위키피디아 굴업도 문서의 "핵폐기물 처리장" 섹션이 가장 체계적으로 정리된 공개 자료.',
+    screenshot: ['ref_01_wiki_gulupdo.png'],
+    links: [
+      { label: '위키피디아 · 굴업도 (한국어 문서 전체)', url: 'https://ko.wikipedia.org/wiki/%EA%B5%B4%EC%97%85%EB%8F%84', type: '백과 · CC BY-SA', status: 'primary' },
+      { label: '에너지정의행동 아카이브 · 굴업도', url: 'https://energyjustice.kr/zbxe/?mid=archive&search_keyword=%EA%B5%B4%EC%97%85%EB%8F%84', type: '시민단체 1차 자료', status: 'primary' },
+      { label: '국가기록원 공개 열람', url: 'https://www.archives.go.kr', type: '정부 기록 (검색)', status: 'secondary' },
+    ],
+  },
+  3: {
+    title: '인핵협 결성과 인천 시민 연대 (1995)',
+    source: '한국어 위키피디아 · 시민단체 아카이브',
+    reliability: 'high',
+    type: '백과 · 시민단체',
+    year: '1995',
+    desc: '"인천앞바다 핵폐기장건설반대 범시민대책협의회(인핵협)"는 30여 개 인천 시민단체가 연대해 결성. 위키피디아 굴업도 문서에 시민운동 경과가 상세히 서술되어 있고, 환경운동연합·참여연대 보도자료 DB에서도 추가 확인 가능.',
+    screenshot: ['ref_03_wiki_protest.png', 'ref_03_kfem_search.png'],
+    links: [
+      { label: '위키피디아 · 굴업도 (시민운동 섹션)', url: 'https://ko.wikipedia.org/wiki/%EA%B5%B4%EC%97%85%EB%8F%84', type: '백과 · CC BY-SA', status: 'primary' },
+      { label: '환경운동연합 · 굴업도 검색', url: 'https://kfem.or.kr/?s=%EA%B5%B4%EC%97%85%EB%8F%84', type: '시민단체', status: 'secondary' },
+      { label: '참여연대 · 굴업도 검색', url: 'https://www.peoplepower21.org/?s=%EA%B5%B4%EC%97%85%EB%8F%84', type: '시민단체', status: 'secondary' },
+    ],
+  },
+  4: {
+    title: '굴업도 활성단층 발견 · 핵폐기장 부적합 판정 (1995)',
+    source: '한국지질학회 · 학술 자료',
+    reliability: 'high',
+    type: '학술 1차 자료',
+    year: '1995',
+    desc: '1995년 굴업도 현지 지질조사에서 최근 지질시대의 활성단층이 확인되어 방사성 폐기물 영구 저장소로 부적합 판정. 정부 철회 결정의 결정적 과학 근거. 학술 검색에서 관련 연구를 직접 조회 가능.',
+    screenshot: ['ref_04_scholar_fault.png'],
+    links: [
+      { label: 'Google Scholar · "굴업도 활성단층"', url: 'https://scholar.google.com/scholar?q=%EA%B5%B4%EC%97%85%EB%8F%84+%ED%99%9C%EC%84%B1%EB%8B%A8%EC%B8%B5', type: '학술 · 검색 결과 열람 가능', status: 'primary' },
+      { label: '한국지질학회지 (JGSK)', url: 'https://www.jgsk.or.kr', type: '학술지 홈', status: 'secondary' },
+      { label: '한국지질자원연구원 (KIGAM)', url: 'https://www.kigam.re.kr', type: '정부 연구기관', status: 'secondary' },
+    ],
+  },
+  5: {
+    title: '굴업도 시민운동 기록 · 에너지정의행동 아카이브',
+    source: '에너지정의행동 (Energy Justice Actions)',
+    reliability: 'high',
+    type: '시민단체 공식 아카이브 · 1차',
+    year: '상시 유지',
+    desc: '핵 관련 시민운동의 한국 대표 아카이브. 굴업도 반대 운동 타임라인·보도자료·성명서 원문이 공개되어 있음. 검색어 "굴업도"로 실제 게시물 목록 열람 가능.',
+    screenshot: ['ref_05_ej_archive.png'],
+    links: [
+      { label: '에너지정의행동 · "굴업도" 아카이브 검색', url: 'https://energyjustice.kr/zbxe/?mid=archive&search_keyword=%EA%B5%B4%EC%97%85%EB%8F%84', type: '시민단체 1차', status: 'primary' },
+      { label: '에너지정의행동 메인', url: 'https://energyjustice.kr', type: '시민단체', status: 'secondary' },
+    ],
+  },
+  7: {
+    title: 'CJ 씨앤아이레저산업 굴업도 리조트 개발 논란 (2000s~2014)',
+    source: '한국어 위키피디아 · 환경운동연합',
+    reliability: 'high',
+    type: '백과 · 시민단체',
+    year: '2000s – 2014',
+    desc: 'CJ 계열사 씨앤아이레저산업의 굴업도 토지 매입과 18홀 골프장·관광단지 개발 추진은 위키피디아 굴업도 문서에 독립 섹션으로 정리되어 있음. 환경운동연합 보도자료에 당시 반대 운동 기록.',
+    screenshot: ['ref_07_wiki_cj.png', 'ref_07_kfem_search.png'],
+    links: [
+      { label: '위키피디아 · 굴업도 (CJ 리조트 논란)', url: 'https://ko.wikipedia.org/wiki/%EA%B5%B4%EC%97%85%EB%8F%84', type: '백과 · CC BY-SA', status: 'primary' },
+      { label: '환경운동연합 · "굴업도" 검색', url: 'https://kfem.or.kr/?s=%EA%B5%B4%EC%97%85%EB%8F%84', type: '시민단체', status: 'secondary' },
+    ],
+  },
+  8: {
+    title: 'CJ 굴업도 골프장 개발 철회 (2014)',
+    source: '환경운동연합 · 위키피디아',
+    reliability: 'high',
+    type: '시민단체 공식 + 백과',
+    year: '2014',
+    desc: '10년간의 반대 운동, 환경영향평가 통과 실패, 문화재청 천연기념물 지정 권고가 맞물려 CJ가 개발 계획 공식 철회. 2차 시민 승리. 위키피디아 굴업도 문서에 경과 서술.',
+    screenshot: ['ref_08_wiki_withdrawal.png'],
+    links: [
+      { label: '위키피디아 · 굴업도 (개발 철회 경과)', url: 'https://ko.wikipedia.org/wiki/%EA%B5%B4%EC%97%85%EB%8F%84', type: '백과 · CC BY-SA', status: 'primary' },
+      { label: '환경운동연합 · "굴업도" 검색', url: 'https://kfem.or.kr/?s=%EA%B5%B4%EC%97%85%EB%8F%84', type: '시민단체', status: 'secondary' },
+      { label: '한국내셔널트러스트', url: 'https://www.nationaltrust.or.kr', type: '시민단체', status: 'secondary' },
+    ],
+  },
+  9: {
+    title: '굴업도 해상풍력 사업 · 공식 문서 경로',
+    source: 'DART 전자공시 · 인천투데이 · 한국경제',
+    reliability: 'high',
+    type: '정부 공시 · 언론 · 1차 자료',
+    year: '2020 – 2026',
+    desc: '굴업도 해상풍력 238MW 사업의 공식 근거. DART에서 씨앤아이레저산업·SK디앤디 이름으로 실제 공시 목록이 조회되며(2020 이후 다수 건), 인천투데이·한국경제 검색 결과에는 관련 기사가 최신순으로 실제 나열됨. 환경영향평가서는 EIASS에서 공람 기간 확인 후 열람.',
+    screenshot: ['ref_09_dart_cni.png', 'ref_09_dart_skdd.png', 'ref_09_incheontoday.png'],
+    links: [
+      { label: 'DART · 씨앤아이레저산업 공시 목록', url: 'https://dart.fss.or.kr/dsab007/main.do?textCrpNm=%EC%94%A8%EC%95%A4%EC%95%84%EC%9D%B4%EB%A0%88%EC%A0%80%EC%82%B0%EC%97%85', type: '정부 공시 1차', status: 'primary' },
+      { label: 'DART · SK디앤디 공시 목록 (합작 파트너)', url: 'https://dart.fss.or.kr/dsab007/main.do?textCrpNm=SK%EB%94%94%EC%95%A4%EB%94%94', type: '정부 공시 1차', status: 'primary' },
+      { label: '인천투데이 · "굴업도 해상풍력" 기사 목록', url: 'https://www.incheontoday.com/news/articleList.html?sc_word=%EA%B5%B4%EC%97%85%EB%8F%84+%ED%95%B4%EC%83%81%ED%92%8D%EB%A0%A5&view_type=sm', type: '지역 언론 1차', status: 'primary' },
+      { label: '한국경제 · "굴업도 해상풍력" 검색', url: 'https://search.hankyung.com/search/news?query=%EA%B5%B4%EC%97%85%EB%8F%84+%ED%95%B4%EC%83%81%ED%92%8D%EB%A0%A5', type: '언론 검색', status: 'primary' },
+      { label: '환경영향평가정보지원시스템 (EIASS)', url: 'https://www.eiass.go.kr', type: '정부 평가 · 공람', status: 'secondary' },
+      { label: '산업통상자원부 전기위원회', url: 'https://www.motie.go.kr', type: '정부 허가', status: 'secondary' },
+    ],
+  },
+  10: {
+    title: '굴업풍력개발㈜ 물적분할 · CJ-SK디앤디 합작 공시',
+    source: '금융감독원 전자공시시스템 (DART)',
+    reliability: 'high',
+    type: '정부 공시 1차 자료',
+    year: '2020 – 2024',
+    desc: '씨앤아이레저산업에서 굴업풍력개발㈜가 물적분할로 신설된 공시, SK디앤디 지분 참여 공시, 대우건설 협약 관련 공시를 DART에서 직접 조회 가능. 굴업풍력개발㈜는 비상장이라 자체 공시 없음, 모기업·합작사 공시로 추적.',
+    screenshot: ['ref_10_dart_split.png'],
+    links: [
+      { label: 'DART · 씨앤아이레저산업 공시 (분할 문서 포함)', url: 'https://dart.fss.or.kr/dsab007/main.do?textCrpNm=%EC%94%A8%EC%95%A4%EC%95%84%EC%9D%B4%EB%A0%88%EC%A0%80%EC%82%B0%EC%97%85', type: '정부 공시 1차', status: 'primary' },
+      { label: 'DART · SK디앤디 공시', url: 'https://dart.fss.or.kr/dsab007/main.do?textCrpNm=SK%EB%94%94%EC%95%A4%EB%94%94', type: '정부 공시 1차', status: 'primary' },
+      { label: 'DART · 대우건설 공시', url: 'https://dart.fss.or.kr/dsab007/main.do?textCrpNm=%EB%8C%80%EC%9A%B0%EA%B1%B4%EC%84%A4', type: '정부 공시 1차', status: 'primary' },
+    ],
+  },
+  11: {
+    title: '굴업도 지질 · 백악기 응회암 학술 자료',
+    source: 'Google Scholar · 한국지질학회 · KoreaScience',
+    reliability: 'high',
+    type: '학술 1차 · 다수 논문',
+    year: '상시',
+    desc: 'Scholar에서 "Gulupdo Cretaceous tuff" 검색 시 실제 관련 논문 다수가 열람 가능. 해식와·타포니·시스택 등 지형의 학술적 가치는 지질학회지·KoreaScience DB에서 확인되며, 유네스코 세계지질공원 기준 부합 근거로 활용 가능.',
+    screenshot: ['ref_11_scholar_tuff.png'],
+    links: [
+      { label: 'Google Scholar · "Gulupdo Cretaceous tuff"', url: 'https://scholar.google.com/scholar?q=Gulupdo+Cretaceous+tuff', type: '학술 · 검색 결과 열람 가능', status: 'primary' },
+      { label: 'Google Scholar · "굴업도 응회암"', url: 'https://scholar.google.com/scholar?q=%EA%B5%B4%EC%97%85%EB%8F%84+%EC%9D%91%ED%9A%8C%EC%95%94', type: '학술', status: 'primary' },
+      { label: 'KoreaScience · "굴업도 응회암"', url: 'https://koreascience.kr/search.page?keywords=%EA%B5%B4%EC%97%85%EB%8F%84+%EC%9D%91%ED%9A%8C%EC%95%94', type: '학술 DB', status: 'secondary' },
+      { label: '한국지질자원연구원 (KIGAM)', url: 'https://www.kigam.re.kr', type: '정부 연구기관', status: 'secondary' },
+    ],
+  },
+  12: {
+    title: '왕은점표범나비·매·먹구렁이 · 서식·관측 1차 자료',
+    source: 'NIBR · eBird · iNaturalist · GBIF · Scholar',
+    reliability: 'high',
+    type: '정부 DB · 시민과학 1차',
+    year: '상시',
+    desc: '국립생물자원관(NIBR)은 종별 분포 · 등급의 한국 공식 DB. eBird 인천(KR-28) Hotspot에는 조류 관측 기록 다수 집적. Scholar에서 "Argynnis nerippe Korea" 검색 시 학술 논문 다수 열람 가능. 시민과학 데이터는 모달에서 더 자세히 확인.',
+    screenshot: ['ref_12_nibr_falco.png', 'ref_12_ebird_kr28.png'],
+    links: [
+      { label: '국립생물자원관 (NIBR) · 종 검색', url: 'https://species.nibr.go.kr', type: '정부 DB 1차', status: 'primary' },
+      { label: 'eBird · 인천 (KR-28) Hotspot', url: 'https://ebird.org/region/KR-28', type: '시민과학 · 조류 1차', status: 'primary' },
+      { label: 'Google Scholar · "Argynnis nerippe Korea"', url: 'https://scholar.google.com/scholar?q=Argynnis+nerippe+Korea', type: '학술', status: 'primary' },
+      { label: 'GBIF · "Gulupdo" 검색 (봇차단·브라우저 정상)', url: 'https://www.gbif.org/occurrence/search?q=Gulupdo', type: '국제 생물다양성', status: 'primary' },
+      { label: 'iNaturalist · 한국 관측', url: 'https://www.inaturalist.org/observations?place_id=6818', type: '시민과학', status: 'secondary' },
+    ],
+  },
+  14: {
+    title: '특정도서·해양보호구역·법령 공식 자료',
+    source: '국가법령정보센터 · 공공데이터포털 · 환경부',
+    reliability: 'high',
+    type: '법령 원문 · 공공데이터 1차',
+    year: '상시',
+    desc: '독도 등 도서지역 특별법 원문은 국가법령정보센터에서 직접 열람 가능. 공공데이터포털에서 "특정도서" 검색 시 관련 공공데이터 셋이 실제 노출됨. 모두 정부 공식 원문 1차 자료.',
+    screenshot: ['ref_14_law_act.png', 'ref_14_data_go.png'],
+    links: [
+      { label: '국가법령정보센터 · "독도 등 도서지역" 검색', url: 'https://www.law.go.kr/lsSc.do?menuId=1&subMenuId=15&tabMenuId=81&query=%EB%8F%85%EB%8F%84+%EB%93%B1+%EB%8F%84%EC%84%9C%EC%A7%80%EC%97%AD', type: '법령 원문 1차', status: 'primary' },
+      { label: '공공데이터포털 · "특정도서" 검색', url: 'https://www.data.go.kr/tcs/dss/selectDataSetList.do?keyword=%ED%8A%B9%EC%A0%95%EB%8F%84%EC%84%9C', type: '정부 공공데이터 1차', status: 'primary' },
+      { label: '환경부 메인', url: 'https://www.me.go.kr', type: '정부', status: 'secondary' },
+      { label: '해양수산부 · 해양보호구역(MPA)', url: 'https://www.mof.go.kr', type: '정부', status: 'secondary' },
+      { label: '국가유산청 · 천연기념물', url: 'https://www.heritage.go.kr', type: '정부', status: 'secondary' },
+    ],
+  },
+};
+
+const BADGE = {
+  high: '<span class="fn-badge badge-high">고신뢰 · 학술/정부</span>',
+  medium: '<span class="fn-badge badge-med">중신뢰 · 언론</span>',
+  citation: '<span class="fn-badge badge-cite">인용 전용 · 3줄 이내</span>',
+};
+const STATUS_BADGE = {
+  primary:       '<span class="link-status status-primary">🟢 1차 증거</span>',
+  secondary:     '<span class="link-status status-secondary">🟡 참고 자료</span>',
+  reconstructed: '<span class="link-status status-reconstructed">🔴 뉴리프 재구성</span>',
+  // 레거시 호환
+  verified: '<span class="link-status status-primary">🟢 1차 증거</span>',
+  search:   '<span class="link-status status-secondary">🟡 참고 자료</span>',
+  cite:     '<span class="link-status status-reconstructed">🔴 인용 전용</span>',
+};
+
+// 스크린샷 파일이 실제로 존재하는지 프로브
+function probeScreenshot(filename) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => resolve(true);
+    img.onerror = () => resolve(false);
+    img.src = SCREENSHOT_BASE + filename;
+  });
+}
+
+async function renderFootnote(id) {
+  const data = REFS[id];
+  const content = document.getElementById('fn-content');
+  if (!data) {
+    content.innerHTML = `<p style="color:var(--text-dim)">출처 ${id} 상세 정보 준비 중.</p>`;
+    return;
+  }
+  // 스크린샷 존재 여부 체크
+  const shots = data.screenshot || [];
+  const probeResults = await Promise.all(shots.map(probeScreenshot));
+  const availableShots = shots.filter((_, i) => probeResults[i]);
+  const missingShots = shots.filter((_, i) => !probeResults[i]);
+
+  const shotHtml = availableShots.length
+    ? `<div class="fn-shots">
+         ${availableShots.map(f => `
+           <a class="fn-shot-tile" href="${SCREENSHOT_BASE + f}" target="_blank" rel="noopener" title="크게 보기">
+             <img src="${SCREENSHOT_BASE + f}" alt="출처 스크린샷 · ${f}" loading="lazy">
+             <div class="fn-shot-caption">${f}</div>
+           </a>`).join('')}
+       </div>`
+    : (shots.length
+        ? `<div class="fn-shot-pending">
+             <strong>스크린샷 준비 중</strong>
+             <p>이 각주의 증거 스크린샷은 아래 파일명으로 수집 예정입니다. 아래 링크를 직접 열어 원문을 확인할 수 있습니다.</p>
+             <ul>${shots.map(f => `<li><code>${f}</code></li>`).join('')}</ul>
+           </div>`
+        : '');
+
+  const linksHtml = (data.links || []).map(l => `
+    <a class="fn-link-row" href="${l.url}" target="_blank" rel="noopener">
+      <div class="fn-link-body">
+        <div class="fn-link-label">${l.label}</div>
+        <div class="fn-link-meta">${STATUS_BADGE[l.status] || ''} <span class="fn-link-type">${l.type}</span></div>
+      </div>
+      <div class="fn-link-arrow">→</div>
+    </a>
+  `).join('');
+
+  content.innerHTML = `
+    <div class="fn-title">${data.title}</div>
+    <div class="fn-source">${data.source} · ${data.year}</div>
+    <div style="margin-bottom:.8rem">${BADGE[data.reliability] || ''}</div>
+    <div class="fn-desc">${data.desc || ''}</div>
+    ${shotHtml}
+    ${linksHtml ? `<div class="fn-links-label">▸ 원문·1차 증거 링크</div><div class="fn-links-wrap">${linksHtml}</div>` : ''}
+    <div class="fn-meta"><span>Ref #${id}</span><span>${data.type}</span></div>
+  `;
+}
+
+document.addEventListener('click', (e) => {
+  const ref = e.target.closest('sup.ref');
+  if (!ref) return;
+  const id = ref.dataset.ref;
+  const panel = document.getElementById('footnotePanel');
+  renderFootnote(id);
+  panel.classList.add('open');
+});
+document.getElementById('footnoteClose').addEventListener('click', () => {
+  document.getElementById('footnotePanel').classList.remove('open');
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    document.getElementById('footnotePanel').classList.remove('open');
+    document.getElementById('citizenModal').classList.remove('open');
+  }
+});
+
+// ============================================================
+// 시민과학 모달 — Wikimedia Commons 공개 저작물 참고 이미지
+// Special:FilePath 사용 (대소문자·특수문자 안정적 처리)
+// ============================================================
+function wmImg(filename, width = 520) {
+  return `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(filename)}?width=${width}`;
+}
+const CITIZEN_IMAGES = [
+  { fn:'Peregrine_falcon_tilting_head.jpeg', name:'매', sci:'Falco peregrinus', lic:'Wikimedia · KOGL Type 1' },
+  { fn:'Elaphe_Schrenckii.jpg', name:'먹구렁이', sci:'Elaphe schrenckii', lic:'Wikimedia · CC BY-SA 4.0' },
+  { fn:'Colubridae_-_Elaphe_schrenckii.JPG', name:'먹구렁이 · 근접', sci:'Elaphe schrenckii', lic:'Wikimedia · CC BY-SA 4.0' },
+  { fn:'252-Fabriciana_nerippe.JPG', name:'왕은점표범나비', sci:'Argynnis nerippe', lic:'Wikimedia · CC BY-SA 4.0' },
+  { fn:'Butterflies_from_China,_Japan,_and_Corea_(PL._XXII)_BHL45490939.jpg', name:'왕은점표범나비 · 도감', sci:'1883 한국·중국·일본 나비 도감', lic:'BHL · Public Domain' },
+  { fn:'Far_Eastern_Oystercatcher,_Chungcheongnam-do,_South_Korea_2.jpg', name:'검은머리물떼새 · 한국 개체', sci:'Haematopus ostralegus osculans', lic:'Wikimedia · CC BY 4.0' },
+  { fn:'Far_Eastern_Oystercatcher,_Nikolai_Bay,_Khabarovsk_Krai,_Russia_01.jpg', name:'검은머리물떼새 · 비행', sci:'H. o. osculans', lic:'Wikimedia · CC0' },
+  { fn:'Yangtze_finless_porpoise,_10_November_2006.jpg', name:'상괭이 · 근연종', sci:'Neophocaena asiaeorientalis', lic:'Wikimedia · CC BY 3.0' },
+  { fn:'Yangtze_finless_porpoise,_12_February_2008a.jpg', name:'상괭이 · 수면 위', sci:'N. asiaeorientalis', lic:'Wikimedia · CC BY 3.0' },
+  { fn:'Aerial_photograph_of_Gureopdo,_South_Korea.jpg', name:'굴업도 항공 전경', sci:'2019 · Gureopdo aerial', lic:'Wikimedia · CC BY 4.0 · Mosbatho' },
+  { fn:'Seopori_Beach.jpg', name:'인접 덕적도 해변', sci:'서해 도서 생태 참고', lic:'Wikimedia · CC BY-SA 4.0' },
+  { fn:'Seopori_pine_forest_promenade.jpg', name:'인접 덕적도 해송림', sci:'서해 도서 식생 참고', lic:'Wikimedia · CC BY-SA 4.0' },
+];
+function buildCitizenGrid() {
+  const g = document.getElementById('citizenImgGrid');
+  if (g.dataset.built) return;
+  g.dataset.built = '1';
+  g.innerHTML = CITIZEN_IMAGES.map(x => `
+    <a class="img-tile" href="${wmImg(x.fn, 1280)}" target="_blank" rel="noopener" title="${x.name} · 원본 열기">
+      <img src="${wmImg(x.fn, 520)}" alt="${x.name} (${x.sci})" loading="lazy" onerror="this.closest('.img-tile').classList.add('failed')">
+      <div class="img-caption"><strong>${x.name}</strong><span>${x.sci} · ${x.lic}</span></div>
+      <div class="img-fallback">이미지 불러오기 실패<br><small style="opacity:.7;margin-top:.35rem;display:block">${x.name} — ${x.sci}</small></div>
+    </a>
+  `).join('');
+}
+document.getElementById('openCitizenModal').addEventListener('click', () => {
+  buildCitizenGrid();
+  document.getElementById('citizenModal').classList.add('open');
+});
+document.getElementById('openCitizenModal').addEventListener('keypress', (e) => {
+  if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); buildCitizenGrid(); document.getElementById('citizenModal').classList.add('open'); }
+});
+document.getElementById('citizenModalClose').addEventListener('click', () => {
+  document.getElementById('citizenModal').classList.remove('open');
+});
+document.getElementById('citizenModal').addEventListener('click', (e) => {
+  if (e.target.id === 'citizenModal') e.currentTarget.classList.remove('open');
+});
+
+// ============================================================
+// Intersection Observer — reveal + counter
+// ============================================================
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+      if (entry.target.classList.contains('reveal-stagger') || entry.target.classList.contains('stats-grid')) {
+        entry.target.querySelectorAll('.stat-num').forEach(animateCounter);
+      }
+    }
+  });
+}, { threshold: 0.12, rootMargin: '0px 0px -80px 0px' });
+document.querySelectorAll('.reveal, .reveal-stagger, .tl-item, .stats-grid').forEach(el => io.observe(el));
+
+function animateCounter(el) {
+  const target = parseInt(el.dataset.target, 10);
+  if (isNaN(target) || el.dataset.done) return;
+  el.dataset.done = '1';
+  const counter = el.querySelector('.counter');
+  if (!counter) return;
+  const duration = 1400;
+  const start = performance.now();
+  function tick(now) {
+    const p = Math.min(1, (now - start) / duration);
+    const eased = 1 - Math.pow(1 - p, 3);
+    counter.textContent = Math.round(target * eased);
+    if (p < 1) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+
+// ============================================================
+// Progress bar + nav background
+// ============================================================
+const progressBar = document.getElementById('progressBar');
+window.addEventListener('scroll', () => {
+  const h = document.documentElement;
+  const p = h.scrollTop / (h.scrollHeight - h.clientHeight);
+  progressBar.style.transform = `scaleX(${p})`;
+  document.getElementById('topNav').style.background = h.scrollTop > 100
+    ? 'rgba(5,17,26,0.94)'
+    : 'linear-gradient(180deg,rgba(5,17,26,0.9) 0%,rgba(5,17,26,0) 100%)';
+}, { passive: true });
+
+// ============================================================
+// Section Dots
+// ============================================================
+const sections = Array.from(document.querySelectorAll('section[data-label]'));
+const dotsContainer = document.getElementById('sectionDots');
+sections.forEach((sec, i) => {
+  const btn = document.createElement('button');
+  btn.dataset.label = sec.dataset.label;
+  btn.dataset.index = i;
+  btn.addEventListener('click', () => sec.scrollIntoView({ behavior: 'smooth' }));
+  dotsContainer.appendChild(btn);
+});
+const dotIO = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      const idx = sections.indexOf(e.target);
+      dotsContainer.querySelectorAll('button').forEach((b, i) => b.classList.toggle('active', i === idx));
+    }
+  });
+}, { threshold: 0.5 });
+sections.forEach(s => dotIO.observe(s));
+
+// ============================================================
+// Leaflet
+// ============================================================
+document.addEventListener('DOMContentLoaded', () => {
+  if (typeof L === 'undefined') return;
+  const map = L.map('leaflet-map', { scrollWheelZoom: false }).setView([37.190, 125.968], 14);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap contributors', maxZoom: 17 }).addTo(map);
+  const points = [
+    { lat: 37.188, lon: 125.961, type: 'rock', name: '코끼리바위 (시스택)', desc: '응회암 해식 작용이 만든 풍화 지형. 9천만 년의 증거.' },
+    { lat: 37.195, lon: 125.965, type: 'rock', name: '목기미 해변', desc: '사구 + 육지식물-해안식물 공존 생태계.' },
+    { lat: 37.192, lon: 125.958, type: 'rock', name: '토끼섬 해식와', desc: '국내 유일·국외에서도 희귀한 해식와(sea-cave wall).' },
+    { lat: 37.187, lon: 125.970, type: 'eco', name: '개머리언덕·매 번식지', desc: '멸종위기Ⅰ급 매 번식쌍 2쌍 확인. 2026.03.' },
+    { lat: 37.190, lon: 125.973, type: 'eco', name: '왕은점표범나비 초지', desc: '국내 최대 군락지.' },
+    { lat: 37.184, lon: 125.960, type: 'threat', name: '해상풍력 예정지 (추정)', desc: '2026 착공 예정. 환경영향평가 진행 중. 해저 케이블·기초 공사 영향 평가 미흡.' },
+  ];
+  const makeIcon = (color) => L.divIcon({
+    html: `<div style="width:18px;height:18px;border-radius:50%;background:${color};box-shadow:0 0 0 4px ${color}33,0 0 14px ${color};border:2px solid #0A1A22"></div>`,
+    className: 'custom-marker', iconSize: [18, 18], iconAnchor: [9, 9],
+  });
+  const icons = { rock: makeIcon('#D4B896'), eco: makeIcon('#7DBE8E'), threat: makeIcon('#E74C3C') };
+  points.forEach(p => {
+    L.marker([p.lat, p.lon], { icon: icons[p.type] }).addTo(map)
+      .bindPopup(`<div style="color:#0A1A22;font-family:Pretendard,sans-serif"><strong>${p.name}</strong><br><span style="font-size:.9em;color:#555">${p.desc}</span></div>`);
+  });
+});
+
+// ============================================================
+// 폼 제출 — Cloudflare Pages Function(/api/submit) 우선, 실패 시 mailto 폴백
+// ============================================================
+async function handleSubmit(e) {
+  e.preventDefault();
+  const form = e.target;
+  const btn = form.querySelector('button[type="submit"]');
+  const origText = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = '제출 중…';
+
+  const data = new FormData(form);
+  const payload = {
+    name: (data.get('name') || '').trim(),
+    email: (data.get('email') || '').trim(),
+    telegram: (data.get('telegram') || '').trim(),
+    org: (data.get('org') || '').trim(),
+    time: data.get('time') || '',
+    referrer: data.get('referrer') || '',
+    methods: data.getAll('method'),
+    message: (data.get('message') || '').trim(),
+    website: data.get('website') || '',   // 허니팟 (봇 차단)
+    consent: !!data.get('consent'),
+  };
+
+  if (!payload.consent) {
+    alert('개인정보 수집·이용에 동의해주세요.');
+    btn.disabled = false;
+    btn.textContent = origText;
+    return;
+  }
+
+  try {
+    const res = await fetch('/api/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    const result = await res.json().catch(() => ({ ok: false }));
+    if (res.ok && result.ok) {
+      form.reset();
+      showToast('✓ ' + (result.message || '신청이 접수되었습니다. 48시간 내 연락드립니다.'), 'ok');
+    } else {
+      throw new Error(result.error || 'server error');
+    }
+  } catch (err) {
+    // 폴백: 백엔드 미연결이거나 네트워크 문제 시 mailto
+    const body = `[뉴리프 · 굴업도 아카이브 참여 신청]
+이름: ${payload.name}
+이메일: ${payload.email}
+텔레그램: ${payload.telegram || '(없음)'}
+소속: ${payload.org || '(미기입)'}
+연락 시간: ${payload.time}
+유입 경로: ${payload.referrer}
+참여 방식: ${payload.methods.join(', ') || '(선택 없음)'}
+메시지:
+${payload.message || '(없음)'}`;
+    showToast('메일 앱으로 전환합니다…', 'warn');
+    setTimeout(() => {
+      window.location.href = `mailto:contact@newleaf.kr?subject=${encodeURIComponent('[굴업도 아카이브] 참여 신청 - ' + payload.name)}&body=${encodeURIComponent(body)}`;
+    }, 600);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = origText;
+  }
+}
+
+function showToast(msg, kind = 'ok') {
+  let el = document.getElementById('toast');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'toast';
+    el.style.cssText = 'position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(120%);z-index:200;padding:1rem 1.75rem;border-radius:2rem;font-weight:600;font-size:.95rem;letter-spacing:-0.005em;box-shadow:0 16px 40px rgba(0,0,0,.4);transition:transform .4s cubic-bezier(.2,.8,.2,1);max-width:90vw;text-align:center';
+    document.body.appendChild(el);
+  }
+  el.textContent = msg;
+  el.style.background = kind === 'ok' ? 'var(--vitality)' : kind === 'warn' ? 'var(--amber)' : 'var(--danger)';
+  el.style.color = '#fff';
+  requestAnimationFrame(() => { el.style.transform = 'translateX(-50%) translateY(0)'; });
+  clearTimeout(el._t);
+  el._t = setTimeout(() => { el.style.transform = 'translateX(-50%) translateY(120%)'; }, 5000);
+}
+function shareArchive() {
+  const url = window.location.href;
+  const title = '굴업도 — 9천만 년의 약속';
+  if (navigator.share) {
+    navigator.share({ title, url, text: '한국의 갈라파고스, 굴업도. 1994년부터 2026년까지의 보전 아카이브.' });
+  } else {
+    navigator.clipboard.writeText(url);
+    alert('링크가 복사되었습니다.\n' + url);
+  }
+}
+
+// ============================================================
+// 신문 클립 자동 배지 · 뉴리프 재구성 / 1차 공시 / 자체 발언 구분
+// ============================================================
+document.querySelectorAll('.news-clip').forEach(clip => {
+  const masthead = (clip.querySelector('.masthead span:first-child')?.textContent || '').trim();
+  let label, cls, note;
+  if (masthead.includes('DART') || masthead.includes('공시')) {
+    label = '1차 공시 요약';
+    cls = 'clip-badge-primary';
+    note = '실제 공시 목록은 DART 전자공시 시스템에서 직접 조회 가능. 각주의 링크로 확인.';
+  } else if (masthead.includes('뉴리프')) {
+    label = '자체 발언';
+    cls = 'clip-badge-statement';
+    note = '뉴리프의 공식 입장문 요약.';
+  } else {
+    label = '뉴리프 재구성';
+    cls = 'clip-badge-reconstructed';
+    note = '본 기사 카드는 당시 언론 보도의 핵심을 뉴리프가 재구성한 요약입니다. 해당 매체 원문은 각주의 검색 링크 또는 BigKinds 통합 검색(로그인)에서 확인 가능.';
+  }
+  const badge = document.createElement('div');
+  badge.className = 'clip-badge ' + cls;
+  badge.textContent = label;
+  clip.prepend(badge);
+
+  // 재구성 클립에만 안내 문구 추가 (DART/자체는 중복 방지)
+  if (cls === 'clip-badge-reconstructed') {
+    const byline = clip.querySelector('.byline');
+    if (byline && !clip.querySelector('.clip-note')) {
+      const noteEl = document.createElement('div');
+      noteEl.className = 'clip-note';
+      noteEl.textContent = note;
+      byline.parentNode.insertBefore(noteEl, byline);
+    }
+  }
+});
+
+// ============================================================
+// 발표자 모드 단축키
+// ============================================================
+document.addEventListener('keydown', (e) => {
+  if (e.target.matches('input, textarea, select')) return;
+  const current = sections.findIndex(s => {
+    const r = s.getBoundingClientRect();
+    return r.top <= window.innerHeight * 0.5 && r.bottom > window.innerHeight * 0.5;
+  });
+  if (e.key === 'ArrowDown' || e.key === 'PageDown' || e.key === ' ') {
+    e.preventDefault();
+    sections[Math.min(sections.length - 1, current + 1)]?.scrollIntoView({ behavior: 'smooth' });
+  } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
+    e.preventDefault();
+    sections[Math.max(0, current - 1)]?.scrollIntoView({ behavior: 'smooth' });
+  } else if (e.key === 'Home') {
+    e.preventDefault();
+    sections[0]?.scrollIntoView({ behavior: 'smooth' });
+  } else if (e.key === 'End') {
+    e.preventDefault();
+    sections[sections.length - 1]?.scrollIntoView({ behavior: 'smooth' });
+  }
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,30 @@
+# Cloudflare Pages 프로젝트 설정
+# wrangler CLI가 이 파일을 읽어 로컬 개발·배포·D1 바인딩을 처리합니다.
+#
+# 사용법:
+#   npx wrangler login                   # 한 번만 (브라우저 인증)
+#   npx wrangler d1 create gulupdo-submissions
+#   # 위 명령어 결과의 database_id를 아래 database_id에 붙여넣기
+#   npx wrangler d1 execute gulupdo-submissions --file=schema.sql --remote
+#   npx wrangler pages dev .              # 로컬 테스트
+#   npx wrangler pages deploy .           # 수동 배포 (Git 연동 시 자동됨)
+
+name = "gulupdo-archive"
+pages_build_output_dir = "."
+compatibility_date = "2024-09-01"
+compatibility_flags = ["nodejs_compat"]
+
+# D1 바인딩 — 생성 후 database_id 교체
+[[d1_databases]]
+binding = "DB"
+database_name = "gulupdo-submissions"
+database_id = "여기에_wrangler_d1_create_결과의_id_붙여넣기"
+
+# 환경변수는 Cloudflare 대시보드에서 설정 (보안상 파일에 넣지 않음)
+# Pages → Settings → Environment variables → Production:
+#   IP_SALT             (필수)
+#   TELEGRAM_BOT_TOKEN  (선택)
+#   TELEGRAM_CHAT_ID    (선택)
+#   RESEND_API_KEY      (선택)
+#   RESEND_FROM         (선택, 기본: onboarding@resend.dev)
+#   NOTIFY_EMAIL        (선택)

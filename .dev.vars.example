@@ -1,0 +1,16 @@
+# 로컬 개발용 환경변수 템플릿
+# 복사: cp .dev.vars.example .dev.vars
+# 이후 .dev.vars는 .gitignore로 제외되어 커밋되지 않습니다.
+# 운영 배포용 변수는 Cloudflare 대시보드에서 별도 설정하세요.
+
+# 필수 — IP 해싱 시크릿 (아무 긴 랜덤 문자열, 예: openssl rand -hex 32)
+IP_SALT=change_this_to_random_64_hex_string
+
+# 선택 — 텔레그램 즉시 알림 (개발자 없이도 만들 수 있음, DEPLOY_STEPS.md 참조)
+# TELEGRAM_BOT_TOKEN=1234567890:ABCDEFGHIJKLMNOPQRSTUVWXYZ
+# TELEGRAM_CHAT_ID=-1001234567890
+
+# 선택 — Resend 자동회신 메일 (resend.com 가입 후 API Keys에서 발급)
+# RESEND_API_KEY=re_xxxxxxxxxxxxxxxxxxx
+# RESEND_FROM=뉴리프 <contact@newleaf.kr>
+# NOTIFY_EMAIL=ops@newleaf.kr
