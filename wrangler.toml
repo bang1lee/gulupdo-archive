@@ -18,7 +18,7 @@ compatibility_flags = ["nodejs_compat"]
 [[d1_databases]]
 binding = "DB"
 database_name = "gulupdo-submissions"
-database_id = "여기에_wrangler_d1_create_결과의_id_붙여넣기"
+database_id = "23535ffe-8501-42ef-93dc-658304447b11"
 
 # 환경변수는 Cloudflare 대시보드에서 설정 (보안상 파일에 넣지 않음)
 # Pages → Settings → Environment variables → Production:
