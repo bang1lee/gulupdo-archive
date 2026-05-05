@@ -14,3 +14,9 @@ IP_SALT=change_this_to_random_64_hex_string
 # RESEND_API_KEY=re_xxxxxxxxxxxxxxxxxxx
 # RESEND_FROM=뉴리프 <contact@newleaf.kr>
 # NOTIFY_EMAIL=ops@newleaf.kr
+
+# 선택 — Lab(/lab.html, /api/lab-stream)용 LTX-2 추론 엔드포인트
+# Modal Labs에 LTX-2를 띄우고 plan 합성 HTTP 엔드포인트를 받았을 때만 채워 넣으세요.
+# 비어 있으면 mock 일러스트로 폴백합니다.
+# LAB_LTX_ENDPOINT=https://your-modal-app--lab-plan.modal.run
+# LAB_LTX_KEY=sk-modal-...

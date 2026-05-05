@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lab · Generative UI Streaming — 굴업도 아카이브</title>
+<meta name="description" content="Flipbook(flipbook.page)에서 영감을 얻은 생성형 UI 스트리밍 실험실 — 질문을 입력하면 LTX/Modal 파이프라인을 통해 인포그래픽이 실시간 스트리밍됩니다.">
+<meta name="robots" content="noindex">
+
+<!-- 백엔드 WebSocket 엔드포인트 (Modal에 LTX-2를 띄운 뒤 채워 넣기). 비어 있으면 mock 폴백으로 동작합니다. -->
+<meta name="lab-ws-endpoint" content="">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --ocean-abyss:#05111A; --ocean-deep:#0A1A22; --ocean:#132A36; --ocean-raised:#1C3847; --ocean-soft:#24475A;
+  --rust:#8E735B; --rust-light:#B8A08A; --rust-bright:#D4B896;
+  --vitality:#5D8C6A; --vitality-bright:#7DBE8E; --vitality-glow:rgba(93,140,106,.35);
+  --amber:#D4A03C; --cyan:#4AA8B8; --danger:#E74C3C;
+  --text:#EFEDE8; --text-soft:rgba(239,237,232,.78); --text-dim:rgba(239,237,232,.55); --text-muted:rgba(239,237,232,.32);
+  --line:rgba(239,237,232,.08); --line-strong:rgba(239,237,232,.18);
+  --font-sans:'Pretendard','Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+  --font-mono:'IBM Plex Mono','SF Mono',Menlo,monospace;
+  --ease:cubic-bezier(.4,0,.2,1);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{
+  font-family:var(--font-sans); font-size:15.5px; line-height:1.6;
+  background:radial-gradient(1200px 700px at 70% -10%,rgba(141,115,91,.1),transparent 60%),var(--ocean-abyss);
+  color:var(--text); -webkit-font-smoothing:antialiased; letter-spacing:-.005em;
+}
+::selection{background:var(--rust);color:#fff}
+button,input{font-family:inherit;color:inherit}
+button{cursor:pointer;border:none;background:none}
+
+/* layout */
+.app{max-width:1240px;margin:0 auto;padding:24px 28px 80px}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:18px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:.65rem;font-weight:700;letter-spacing:.04em}
+.brand-dot{width:14px;height:14px;border-radius:50%;background:radial-gradient(circle at 30% 30%,var(--vitality-bright),var(--vitality));box-shadow:0 0 14px var(--vitality-glow)}
+.brand small{color:var(--rust-bright);font-family:var(--font-mono);font-size:.72rem;letter-spacing:.22em;margin-left:.4rem}
+.back{font-family:var(--font-mono);font-size:.78rem;letter-spacing:.12em;color:var(--text-dim);text-decoration:none}
+.back:hover{color:var(--rust-bright)}
+
+.eyebrow{
+  display:inline-flex;align-items:center;gap:.55rem;
+  font-family:var(--font-mono);font-size:.72rem;letter-spacing:.3em;color:var(--rust-bright);text-transform:uppercase;
+  margin-bottom:.7rem;
+}
+.eyebrow::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--vitality-bright);box-shadow:0 0 10px var(--vitality-bright);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+h1{font-size:clamp(1.6rem,2.6vw,2.1rem);font-weight:800;line-height:1.2;letter-spacing:-.02em;margin-bottom:.45rem}
+h1 em{font-style:normal;color:var(--rust-bright)}
+.lede{color:var(--text-soft);max-width:680px;margin-bottom:22px}
+
+/* prompt bar */
+.prompt{
+  display:flex;gap:10px;align-items:center;
+  background:var(--ocean-raised);border:1px solid var(--line-strong);border-radius:14px;
+  padding:8px 8px 8px 18px;margin-bottom:14px;
+  box-shadow:0 8px 30px rgba(0,0,0,.25);
+}
+.prompt input{
+  flex:1;background:transparent;border:none;outline:none;font-size:1rem;padding:10px 0;color:var(--text);
+}
+.prompt input::placeholder{color:var(--text-muted)}
+.prompt button{
+  padding:10px 18px;border-radius:10px;background:var(--rust);color:#fff;font-weight:600;letter-spacing:.02em;
+  transition:background .2s var(--ease),transform .15s var(--ease);
+}
+.prompt button:hover{background:var(--rust-light)}
+.prompt button:disabled{opacity:.5;cursor:not-allowed}
+
+/* breadcrumb */
+.crumbs{
+  display:flex;flex-wrap:wrap;gap:4px;align-items:center;
+  font-family:var(--font-mono);font-size:.78rem;color:var(--text-dim);
+  background:rgba(255,255,255,.02);border:1px solid var(--line);border-radius:10px;
+  padding:8px 12px;margin-bottom:18px;min-height:38px;
+}
+.crumbs .root{color:var(--rust-bright)}
+.crumbs button{color:var(--text-dim);padding:2px 6px;border-radius:6px;letter-spacing:.04em}
+.crumbs button:hover{color:var(--text);background:rgba(255,255,255,.05)}
+.crumbs .sep{opacity:.4;padding:0 2px}
+.crumbs .last{color:var(--rust-bright)}
+
+/* viewer */
+.viewer-wrap{
+  display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:18px;align-items:start;
+}
+@media (max-width:880px){.viewer-wrap{grid-template-columns:1fr}}
+.viewer{
+  position:relative;aspect-ratio:16/9;
+  background:linear-gradient(160deg,var(--ocean-deep),var(--ocean-abyss));
+  border:1px solid var(--line-strong);border-radius:16px;overflow:hidden;
+  box-shadow:0 12px 40px rgba(0,0,0,.4);
+}
+.viewer canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.viewer .hit-layer{position:absolute;inset:0;pointer-events:none}
+.viewer .hit{
+  position:absolute;border:1px solid rgba(212,184,150,.45);background:rgba(212,184,150,.04);
+  border-radius:8px;cursor:pointer;pointer-events:auto;
+  transition:background .15s var(--ease),border-color .15s var(--ease),transform .15s var(--ease);
+}
+.viewer .hit:hover{background:rgba(212,184,150,.16);border-color:var(--rust-bright);transform:translateY(-1px)}
+.viewer .hit-label{
+  position:absolute;left:8px;bottom:8px;font-family:var(--font-mono);font-size:.7rem;letter-spacing:.08em;
+  color:var(--rust-bright);background:rgba(5,17,26,.7);padding:3px 7px;border-radius:5px;
+}
+.viewer .live{
+  position:absolute;top:12px;left:12px;display:flex;align-items:center;gap:6px;
+  font-family:var(--font-mono);font-size:.7rem;letter-spacing:.18em;color:var(--text-soft);
+  background:rgba(5,17,26,.6);backdrop-filter:blur(8px);padding:5px 10px;border-radius:6px;
+}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--danger);box-shadow:0 0 8px var(--danger);animation:pulse 1.4s infinite}
+.viewer.idle .live-dot{background:var(--text-muted);box-shadow:none;animation:none}
+.viewer .res{
+  position:absolute;top:12px;right:12px;font-family:var(--font-mono);font-size:.68rem;letter-spacing:.15em;color:var(--text-dim);
+  background:rgba(5,17,26,.6);backdrop-filter:blur(8px);padding:5px 10px;border-radius:6px;
+}
+
+/* side panel */
+.side{display:flex;flex-direction:column;gap:14px}
+.card{
+  background:var(--ocean-raised);border:1px solid var(--line);border-radius:14px;padding:16px;
+}
+.card h3{font-size:.78rem;letter-spacing:.22em;text-transform:uppercase;color:var(--rust-bright);font-family:var(--font-mono);margin-bottom:10px;font-weight:600}
+.kv{display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:.82rem;color:var(--text-soft);padding:4px 0;border-bottom:1px dashed var(--line)}
+.kv:last-child{border-bottom:none}
+.kv b{color:var(--text);font-weight:500}
+.stack{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.pill{
+  font-family:var(--font-mono);font-size:.7rem;letter-spacing:.06em;
+  padding:4px 9px;border-radius:999px;background:rgba(125,190,142,.12);color:var(--vitality-bright);border:1px solid rgba(125,190,142,.28);
+}
+.pill.rust{background:rgba(212,184,150,.1);color:var(--rust-bright);border-color:rgba(212,184,150,.3)}
+.pill.cyan{background:rgba(74,168,184,.1);color:var(--cyan);border-color:rgba(74,168,184,.3)}
+
+.hint{font-size:.83rem;color:var(--text-dim);line-height:1.6}
+.hint code{font-family:var(--font-mono);font-size:.78rem;color:var(--rust-bright);background:rgba(212,184,150,.06);padding:1px 6px;border-radius:4px}
+
+footer{margin-top:32px;font-size:.78rem;color:var(--text-muted);font-family:var(--font-mono);letter-spacing:.08em}
+footer a{color:var(--text-dim)}
+footer a:hover{color:var(--rust-bright)}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-dot"></span>
+      <span>NEWLEAF · LAB</span>
+      <small>GENERATIVE UI</small>
+    </div>
+    <a class="back" href="/">← 아카이브로</a>
+  </header>
+
+  <div class="eyebrow">Streaming Pixels · Experiment</div>
+  <h1>레이아웃을 짜지 말고, <em>픽셀을 스트리밍</em>하라.</h1>
+  <p class="lede">Flipbook(<a href="https://flipbook.page" target="_blank" rel="noopener" style="color:var(--rust-bright)">flipbook.page</a>)에서 영감을 얻은 미니 뷰어. 질문을 던지면 백엔드(Modal + LTX-2)가 인포그래픽 프레임을 WebSocket으로 흘려보내고, 캔버스의 어느 영역이든 "버튼"이 됩니다. 백엔드가 비어 있으면 mock 일러스트로 동작합니다.</p>
+
+  <form class="prompt" id="prompt-form">
+    <input id="q" type="text" placeholder='예: "스마트폰 각 부품의 역할" / "굴업도가 만들어진 9천만 년 지질사"' autocomplete="off" required>
+    <button id="submit" type="submit">Stream →</button>
+  </form>
+
+  <nav class="crumbs" id="crumbs" aria-label="탐색 경로">
+    <span class="root">/</span>
+  </nav>
+
+  <div class="viewer-wrap">
+    <div class="viewer idle" id="viewer">
+      <canvas id="canvas" width="1920" height="1080"></canvas>
+      <div class="hit-layer" id="hits"></div>
+      <div class="live"><span class="live-dot"></span><span id="live-state">IDLE</span></div>
+      <div class="res" id="res">— · —</div>
+    </div>
+
+    <aside class="side">
+      <div class="card">
+        <h3>Stream Stats</h3>
+        <div class="kv"><span>Status</span><b id="stat-status">idle</b></div>
+        <div class="kv"><span>Source</span><b id="stat-source">mock</b></div>
+        <div class="kv"><span>Frames</span><b id="stat-frames">0</b></div>
+        <div class="kv"><span>FPS</span><b id="stat-fps">—</b></div>
+        <div class="kv"><span>First frame</span><b id="stat-ttfb">—</b></div>
+      </div>
+
+      <div class="card">
+        <h3>Stack</h3>
+        <div class="stack">
+          <span class="pill">LTX-2</span>
+          <span class="pill rust">Modal Labs</span>
+          <span class="pill cyan">WebSocket</span>
+          <span class="pill">HyperFrames</span>
+        </div>
+        <p class="hint" style="margin-top:10px">백엔드를 붙이려면 <code>&lt;meta name="lab-ws-endpoint"&gt;</code>에 Modal에서 띄운 LTX 추론 서버의 <code>wss://</code> URL을 넣으세요.</p>
+      </div>
+
+      <div class="card">
+        <h3>How it works</h3>
+        <p class="hint">
+          1. 질문 입력 → <code>/api/lab-stream</code>이 프롬프트를 합성<br>
+          2. 클라이언트가 WebSocket 연결, 프레임 수신<br>
+          3. 캔버스에 hit-zone 좌표 등록 → 클릭 시 부모 프롬프트 + 영역 라벨로 재요청<br>
+          4. 경로(<code>/SoC/GPU…</code>)는 컨텍스트로 누적
+        </p>
+      </div>
+    </aside>
+  </div>
+
+  <footer>
+    Inspired by <a href="https://flipbook.page" target="_blank" rel="noopener">flipbook.page</a> · @thehalfstackgirl ·
+    <a href="/">굴업도 아카이브</a>
+  </footer>
+</div>
+
+<script>
+(() => {
+  const $  = (s) => document.querySelector(s);
+  const canvas = $('#canvas');
+  const ctx = canvas.getContext('2d');
+  const hits = $('#hits');
+  const viewer = $('#viewer');
+  const liveState = $('#live-state');
+  const res = $('#res');
+  const stat = {
+    status: $('#stat-status'),
+    source: $('#stat-source'),
+    frames: $('#stat-frames'),
+    fps:    $('#stat-fps'),
+    ttfb:   $('#stat-ttfb'),
+  };
+  const crumbs = $('#crumbs');
+  const form = $('#prompt-form');
+  const qInput = $('#q');
+  const submitBtn = $('#submit');
+
+  const wsEndpoint = (document.querySelector('meta[name="lab-ws-endpoint"]')?.content || '').trim();
+
+  // ---- breadcrumb path state ----
+  /** path entries: { label, query } — root is implicit */
+  const path = [];
+  function renderCrumbs(){
+    crumbs.innerHTML = '<span class="root">/</span>';
+    path.forEach((p, i) => {
+      const last = i === path.length - 1;
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.textContent = p.label;
+      btn.className = last ? 'last' : '';
+      btn.addEventListener('click', () => {
+        if (last) return;
+        path.splice(i + 1);
+        renderCrumbs();
+        run(p.query, /*pushPath*/ false);
+      });
+      crumbs.appendChild(btn);
+      const sep = document.createElement('span');
+      sep.className = 'sep';
+      sep.textContent = '/';
+      crumbs.appendChild(sep);
+    });
+  }
+
+  // ---- canvas helpers ----
+  function clear(){
+    ctx.fillStyle = '#0A1A22';
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+  }
+  function drawTitle(text){
+    ctx.fillStyle = '#D4B896';
+    ctx.font = '600 56px Inter, sans-serif';
+    ctx.fillText(text, 80, 110);
+    ctx.strokeStyle = '#8E735B';
+    ctx.lineWidth = 4;
+    ctx.beginPath(); ctx.moveTo(80,140); ctx.lineTo(220,140); ctx.stroke();
+  }
+  function drawCaption(text){
+    ctx.fillStyle = 'rgba(239,237,232,0.55)';
+    ctx.font = '500 22px IBM Plex Mono, monospace';
+    ctx.fillText(text, 80, 170);
+  }
+  function drawZone(z, frameIdx){
+    const reveal = Math.min(1, frameIdx / 18);
+    const x = z.x, y = z.y, w = z.w, h = z.h * reveal;
+    ctx.fillStyle = 'rgba(28,56,71,0.85)';
+    roundRect(ctx, x, y, w, h, 14); ctx.fill();
+    ctx.strokeStyle = 'rgba(212,184,150,0.4)';
+    ctx.lineWidth = 2; ctx.stroke();
+    if (reveal > 0.6) {
+      ctx.fillStyle = '#D4B896';
+      ctx.font = '600 26px IBM Plex Mono, monospace';
+      ctx.fillText(z.id.toUpperCase(), x + 22, y + 44);
+      ctx.fillStyle = '#EFEDE8';
+      ctx.font = '500 28px Pretendard, sans-serif';
+      wrap(ctx, z.label, x + 22, y + 84, w - 44, 36);
+      if (reveal > 0.9 && z.note) {
+        ctx.fillStyle = 'rgba(239,237,232,0.55)';
+        ctx.font = '400 20px Pretendard, sans-serif';
+        wrap(ctx, z.note, x + 22, y + h - 74, w - 44, 26);
+      }
+    }
+  }
+  function roundRect(ctx, x, y, w, h, r){
+    ctx.beginPath();
+    ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r);
+    ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r);
+    ctx.arcTo(x,y,x+w,y,r); ctx.closePath();
+  }
+  function wrap(ctx, text, x, y, maxW, lh){
+    const words = String(text).split(/\s+/);
+    let line = '', yy = y;
+    for (const w of words){
+      const test = line ? line + ' ' + w : w;
+      if (ctx.measureText(test).width > maxW && line){
+        ctx.fillText(line, x, yy); line = w; yy += lh;
+      } else line = test;
+    }
+    if (line) ctx.fillText(line, x, yy);
+  }
+  function renderHitOverlay(zones){
+    hits.innerHTML = '';
+    for (const z of zones){
+      const el = document.createElement('button');
+      el.type = 'button';
+      el.className = 'hit';
+      el.style.left   = (z.x / canvas.width  * 100) + '%';
+      el.style.top    = (z.y / canvas.height * 100) + '%';
+      el.style.width  = (z.w / canvas.width  * 100) + '%';
+      el.style.height = (z.h / canvas.height * 100) + '%';
+      el.title = z.label;
+      el.innerHTML = `<span class="hit-label">${escapeHtml(z.id)}</span>`;
+      el.addEventListener('click', () => {
+        const childQuery = `${z.label} (in context: ${currentQuery()})`;
+        path.push({ label: z.id, query: childQuery });
+        renderCrumbs();
+        run(childQuery, /*pushPath*/ false);
+      });
+      hits.appendChild(el);
+    }
+  }
+  function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+  function currentQuery(){
+    return path.length ? path[path.length - 1].query : (qInput.value || '');
+  }
+
+  // ---- streaming ----
+  let raf = 0;
+  let liveSocket = null;
+
+  function setStatus(s, source){
+    stat.status.textContent = s;
+    if (source) stat.source.textContent = source;
+    liveState.textContent = s.toUpperCase();
+    viewer.classList.toggle('idle', s === 'idle' || s === 'done');
+    submitBtn.disabled = (s === 'streaming');
+  }
+
+  async function run(query, pushPath = true){
+    cancelAnimationFrame(raf);
+    if (liveSocket && liveSocket.readyState <= 1) { try{liveSocket.close()}catch(e){} liveSocket = null; }
+    setStatus('streaming');
+    stat.frames.textContent = '0';
+    stat.fps.textContent = '—';
+    stat.ttfb.textContent = '—';
+    res.textContent = '— · —';
+
+    const t0 = performance.now();
+    const ctxPath = path.map(p => p.label);
+
+    let plan;
+    try {
+      const r = await fetch('/api/lab-stream', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ query, path: ctxPath }),
+      });
+      plan = await r.json();
+    } catch (err) {
+      console.warn('lab-stream fetch failed, using local mock', err);
+      plan = localMockPlan(query, ctxPath);
+    }
+    if (!plan || !plan.ok) plan = localMockPlan(query, ctxPath);
+
+    res.textContent = `${plan.width || 1920}×${plan.height || 1080} · ${plan.fps || 24}fps`;
+
+    if (wsEndpoint) {
+      streamViaWebSocket(plan, t0);
+    } else {
+      streamMockFrames(plan, t0);
+    }
+
+    if (pushPath && path.length === 0) {
+      path.push({ label: plan.title.slice(0, 18), query });
+      renderCrumbs();
+    }
+  }
+
+  function streamMockFrames(plan, t0){
+    stat.source.textContent = 'mock (local)';
+    let frame = 0;
+    const total = 30;
+    const start = performance.now();
+    function tick(){
+      frame++;
+      if (frame === 1) stat.ttfb.textContent = Math.round(performance.now() - t0) + 'ms';
+      clear();
+      drawTitle(plan.title);
+      drawCaption(plan.caption || '');
+      for (const z of plan.zones) drawZone(z, frame);
+      stat.frames.textContent = String(frame);
+      const elapsed = (performance.now() - start) / 1000;
+      stat.fps.textContent = (frame / Math.max(elapsed, 0.001)).toFixed(1);
+      if (frame < total) {
+        raf = requestAnimationFrame(tick);
+      } else {
+        renderHitOverlay(plan.zones);
+        setStatus('done');
+      }
+    }
+    raf = requestAnimationFrame(tick);
+  }
+
+  function streamViaWebSocket(plan, t0){
+    stat.source.textContent = 'modal+ltx';
+    try {
+      const ws = new WebSocket(wsEndpoint);
+      liveSocket = ws;
+      let frames = 0;
+      const start = performance.now();
+      ws.binaryType = 'arraybuffer';
+      ws.onopen = () => ws.send(JSON.stringify({ type:'gen', plan }));
+      ws.onmessage = async (ev) => {
+        if (frames === 0) stat.ttfb.textContent = Math.round(performance.now() - t0) + 'ms';
+        frames++;
+        if (typeof ev.data === 'string') {
+          // control frame (e.g. {type:'done', zones:[...]})
+          try {
+            const msg = JSON.parse(ev.data);
+            if (msg.type === 'zones' && Array.isArray(msg.zones)) {
+              plan.zones = msg.zones;
+              renderHitOverlay(plan.zones);
+            }
+            if (msg.type === 'done') { setStatus('done'); ws.close(); }
+          } catch(e){}
+        } else {
+          // image frame
+          const blob = new Blob([ev.data], { type:'image/jpeg' });
+          const bmp = await createImageBitmap(blob);
+          ctx.drawImage(bmp, 0, 0, canvas.width, canvas.height);
+        }
+        stat.frames.textContent = String(frames);
+        const elapsed = (performance.now() - start) / 1000;
+        stat.fps.textContent = (frames / Math.max(elapsed, 0.001)).toFixed(1);
+      };
+      ws.onerror = () => { console.warn('ws error, falling back to mock'); streamMockFrames(plan, t0); };
+      ws.onclose = () => { if (stat.status.textContent === 'streaming') setStatus('done'); };
+    } catch (err) {
+      console.warn('ws init failed, falling back to mock', err);
+      streamMockFrames(plan, t0);
+    }
+  }
+
+  // ---- local mock plan (used when /api/lab-stream is unreachable) ----
+  function localMockPlan(query, pathArr){
+    const seed = (query + pathArr.join('/')).length;
+    const palette = ['core','signal','memory','sense','power','link'];
+    const zones = [];
+    const cols = 3, rows = 2, padX = 80, padY = 220, gap = 36;
+    const w = (canvas.width  - padX*2 - gap*(cols-1)) / cols;
+    const h = (canvas.height - padY   - gap*(rows-1) - 80) / rows;
+    for (let i=0;i<cols*rows;i++){
+      const r = Math.floor(i/cols), c = i%cols;
+      zones.push({
+        id: palette[(seed+i) % palette.length],
+        label: `${query.slice(0, 28)} — ${palette[(seed+i) % palette.length]}`,
+        note: '클릭하면 이 영역에 대한 세부 일러스트가 다음 프레임으로 이어집니다.',
+        x: padX + c*(w+gap),
+        y: padY + r*(h+gap),
+        w, h,
+      });
+    }
+    return {
+      ok:true,
+      title: query.length > 60 ? query.slice(0, 58) + '…' : query,
+      caption: pathArr.length ? '/ ' + pathArr.join(' / ') : 'generative ui · streaming preview',
+      width: 1920, height: 1080, fps: 24,
+      zones,
+    };
+  }
+
+  // ---- events ----
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const q = qInput.value.trim();
+    if (!q) return;
+    path.length = 0;
+    renderCrumbs();
+    run(q, true);
+  });
+
+  // initial idle scene
+  clear();
+  ctx.fillStyle = 'rgba(212,184,150,0.5)';
+  ctx.font = '500 28px IBM Plex Mono, monospace';
+  ctx.fillText('// awaiting prompt', 80, 110);
+  ctx.fillStyle = 'rgba(239,237,232,0.35)';
+  ctx.font = '400 22px Pretendard, sans-serif';
+  ctx.fillText('질문을 입력하면 인포그래픽 프레임이 여기에 스트리밍됩니다.', 80, 160);
+})();
+</script>
+</body>
+</html>
