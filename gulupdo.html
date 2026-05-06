@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>굴업도 — 한 페이지 · 9천만 년의 약속</title>
+<meta name="description" content="굴업도 디지털 아카이브의 핵심을 한 화면에 응축한 요약 페이지. 지질·저항사·생명·위협·법·행동을 클릭으로 펼쳐봅니다.">
+<meta property="og:title" content="굴업도 — 한 페이지">
+<meta property="og:description" content="9천만 년의 땅, 30년의 저항. 굴업도 아카이브 핵심 요약.">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="ko_KR">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Serif+KR:wght@700&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --ocean-abyss:#05111A; --ocean-deep:#0A1A22; --ocean:#132A36; --ocean-raised:#1C3847; --ocean-soft:#24475A;
+  --rust:#8E735B; --rust-light:#B8A08A; --rust-bright:#D4B896;
+  --vitality:#5D8C6A; --vitality-bright:#7DBE8E; --vitality-glow:rgba(93,140,106,.35);
+  --amber:#D4A03C; --cyan:#4AA8B8; --danger:#C0392B; --danger-bright:#E74C3C;
+  --text:#EFEDE8; --text-soft:rgba(239,237,232,.78); --text-dim:rgba(239,237,232,.55); --text-muted:rgba(239,237,232,.32);
+  --line:rgba(239,237,232,.08); --line-strong:rgba(239,237,232,.18);
+  --font-sans:'Pretendard','Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+  --font-num:'Inter','Pretendard',sans-serif;
+  --font-mono:'IBM Plex Mono','SF Mono',Menlo,monospace;
+  --font-serif:'Noto Serif KR',serif;
+  --ease:cubic-bezier(.4,0,.2,1);
+  --ease-emph:cubic-bezier(.2,.8,.2,1);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{
+  font-family:var(--font-sans);font-size:15px;line-height:1.6;letter-spacing:-.005em;
+  background:
+    radial-gradient(1100px 600px at 85% -10%, rgba(141,115,91,.12), transparent 60%),
+    radial-gradient(800px 500px at -10% 110%, rgba(93,140,106,.08), transparent 60%),
+    var(--ocean-abyss);
+  color:var(--text);-webkit-font-smoothing:antialiased;
+  overflow:hidden;
+}
+::selection{background:var(--rust);color:#fff}
+button,input,a{font-family:inherit;color:inherit}
+button{cursor:pointer;border:none;background:none}
+a{text-decoration:none}
+
+.page{
+  display:grid;grid-template-rows:auto 1fr auto;
+  height:100vh;max-width:1440px;margin:0 auto;
+  padding:18px 24px 14px;gap:14px;
+}
+
+/* ===== TOP NAV ===== */
+.nav{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:.6rem;font-weight:700;letter-spacing:.04em;font-size:.92rem}
+.brand-logo{
+  width:14px;height:14px;border-radius:50%;
+  background:radial-gradient(circle at 30% 30%,var(--vitality-bright),var(--vitality));
+  box-shadow:0 0 14px var(--vitality-glow);
+}
+.brand small{color:var(--rust-bright);font-family:var(--font-mono);font-size:.7rem;letter-spacing:.22em;margin-left:.4rem}
+.nav-meta{display:flex;align-items:center;gap:14px;font-family:var(--font-mono);font-size:.7rem;color:var(--text-dim);letter-spacing:.12em}
+.nav-meta .urgent{color:var(--danger-bright);font-weight:600;display:flex;align-items:center;gap:6px}
+.nav-meta .urgent::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--danger-bright);box-shadow:0 0 8px var(--danger-bright);animation:pulse 1.5s infinite}
+.nav-meta a{color:var(--text-dim)}
+.nav-meta a:hover{color:var(--rust-bright)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* ===== MAIN GRID ===== */
+.main{
+  display:grid;grid-template-columns:minmax(0, 1.05fr) minmax(0, 1.4fr);gap:18px;min-height:0;
+}
+@media (max-width:980px){.main{grid-template-columns:1fr;overflow:auto}}
+
+/* ----- LEFT: hero + stats ----- */
+.left{display:flex;flex-direction:column;min-height:0;gap:12px}
+.hero{
+  background:linear-gradient(155deg,var(--ocean-deep),var(--ocean) 80%);
+  border:1px solid var(--line-strong);border-radius:16px;
+  padding:22px 24px;flex:0 0 auto;
+  position:relative;overflow:hidden;
+}
+.hero::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(400px 200px at 90% 0%, rgba(212,184,150,.18), transparent 60%);
+  pointer-events:none;
+}
+.hero-eye{display:inline-flex;align-items:center;gap:.55rem;font-family:var(--font-mono);font-size:.7rem;letter-spacing:.3em;color:var(--rust-bright);text-transform:uppercase;margin-bottom:.55rem}
+.hero-eye::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--vitality-bright);box-shadow:0 0 10px var(--vitality-bright);animation:pulse 2s infinite}
+.hero h1{font-size:clamp(1.7rem,2.4vw,2.2rem);font-weight:800;line-height:1.15;letter-spacing:-.02em;margin-bottom:.55rem}
+.hero h1 em{font-style:normal;color:var(--rust-bright)}
+.hero .divider{display:block;width:48px;height:3px;background:var(--rust);margin:.85rem 0}
+.hero p{color:var(--text-soft);font-size:.95rem;line-height:1.7;max-width:46ch}
+
+.stats{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:8px;
+  flex:1 1 auto;min-height:0;
+}
+.stat{
+  background:var(--ocean-raised);border:1px solid var(--line);border-radius:12px;
+  padding:14px 14px 12px;display:flex;flex-direction:column;justify-content:space-between;
+  border-left:3px solid transparent;transition:border-color .25s var(--ease),transform .2s var(--ease);
+}
+.stat:hover{border-left-color:var(--rust-bright);transform:translateX(2px)}
+.stat-num{font-family:var(--font-num);font-weight:800;font-size:clamp(1.7rem,2.5vw,2.2rem);color:var(--rust-bright);line-height:1;letter-spacing:-.03em}
+.stat-num small{font-size:.55em;color:var(--text-soft);font-weight:500;margin-left:.15em;letter-spacing:0}
+.stat-label{font-family:var(--font-mono);font-size:.65rem;color:var(--text-dim);letter-spacing:.12em;text-transform:uppercase;margin-top:8px}
+.stat-note{font-size:.78rem;color:var(--text-soft);margin-top:4px;line-height:1.45}
+.stat.urgent{border-left-color:var(--danger-bright)}
+.stat.urgent .stat-num{color:var(--danger-bright)}
+
+/* ----- RIGHT: facet grid + drill-down ----- */
+.right{display:flex;flex-direction:column;min-height:0;gap:12px}
+.facets{
+  display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(2,1fr);gap:10px;
+  flex:1 1 auto;min-height:0;
+}
+.facet{
+  background:var(--ocean-raised);border:1px solid var(--line);border-radius:14px;
+  padding:14px;text-align:left;display:flex;flex-direction:column;justify-content:space-between;
+  cursor:pointer;position:relative;overflow:hidden;
+  transition:border-color .25s var(--ease),background .25s var(--ease),transform .2s var(--ease);
+}
+.facet::after{
+  content:'→';position:absolute;right:12px;bottom:10px;
+  font-family:var(--font-mono);color:var(--rust-bright);opacity:.35;font-size:1rem;
+  transition:opacity .2s var(--ease),transform .2s var(--ease);
+}
+.facet:hover{border-color:var(--rust);background:#1F3D4D;transform:translateY(-2px)}
+.facet:hover::after{opacity:1;transform:translateX(3px)}
+.facet.active{border-color:var(--rust-bright);background:#1F3D4D;box-shadow:0 0 0 1px var(--rust-bright) inset}
+.facet .ord{font-family:var(--font-mono);font-size:.65rem;letter-spacing:.2em;color:var(--rust-bright);font-weight:600;margin-bottom:6px}
+.facet h3{font-size:1.05rem;font-weight:700;letter-spacing:-.01em;margin-bottom:6px;line-height:1.25}
+.facet h3 em{font-style:normal;color:var(--rust-bright)}
+.facet p{font-size:.8rem;color:var(--text-soft);line-height:1.5}
+.facet .badge{
+  display:inline-block;font-family:var(--font-mono);font-size:.6rem;letter-spacing:.1em;
+  padding:2px 6px;border-radius:4px;margin-top:8px;
+  background:rgba(212,184,150,.1);color:var(--rust-bright);border:1px solid rgba(212,184,150,.25);
+}
+.facet.danger{border-left:3px solid var(--danger-bright)}
+.facet.danger h3 em{color:var(--danger-bright)}
+.facet.danger .badge{background:rgba(231,76,60,.12);color:var(--danger-bright);border-color:rgba(231,76,60,.3)}
+.facet.action{border-left:3px solid var(--vitality-bright)}
+.facet.action h3 em{color:var(--vitality-bright)}
+.facet.action .badge{background:rgba(125,190,142,.12);color:var(--vitality-bright);border-color:rgba(125,190,142,.3)}
+
+/* ----- DRAWER (drill-down) ----- */
+.drawer{
+  position:fixed;inset:auto 0 0 0;
+  background:linear-gradient(180deg,var(--ocean) 0%,var(--ocean-deep) 100%);
+  border-top:1px solid var(--line-strong);
+  box-shadow:0 -25px 60px rgba(0,0,0,.55);
+  border-radius:18px 18px 0 0;
+  max-height:78vh;transform:translateY(105%);
+  transition:transform .45s var(--ease-emph);
+  z-index:50;display:flex;flex-direction:column;
+}
+.drawer.open{transform:translateY(0)}
+.drawer-head{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:14px 22px;border-bottom:1px solid var(--line);flex:0 0 auto;
+}
+.drawer-head .ord{font-family:var(--font-mono);font-size:.7rem;letter-spacing:.22em;color:var(--rust-bright)}
+.drawer-head h2{font-size:1.15rem;font-weight:700;letter-spacing:-.01em}
+.drawer-head h2 em{font-style:normal;color:var(--rust-bright)}
+.drawer-head .head-l{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+.drawer-head .head-r{display:flex;gap:8px;align-items:center}
+.drawer-link{
+  font-family:var(--font-mono);font-size:.72rem;letter-spacing:.1em;color:var(--text-dim);
+  padding:6px 10px;border:1px solid var(--line-strong);border-radius:8px;
+}
+.drawer-link:hover{color:var(--rust-bright);border-color:var(--rust)}
+.drawer-close{
+  width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.05);
+  display:flex;align-items:center;justify-content:center;font-size:1.05rem;color:var(--text-soft);
+  border:1px solid var(--line);
+}
+.drawer-close:hover{background:rgba(255,255,255,.1);color:var(--text)}
+.drawer-body{
+  padding:18px 22px 24px;overflow-y:auto;flex:1 1 auto;
+}
+.scrim{
+  position:fixed;inset:0;background:rgba(5,17,26,.65);backdrop-filter:blur(3px);
+  opacity:0;pointer-events:none;transition:opacity .35s var(--ease);z-index:40;
+}
+.scrim.show{opacity:1;pointer-events:auto}
+
+/* drawer content patterns */
+.geo-list,.tl-list,.species-grid,.threat-list,.legal-grid,.cta-grid{display:grid;gap:10px}
+.geo-list{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.geo-list .item{background:rgba(255,255,255,.02);border:1px solid var(--line);border-left:2px solid var(--rust);border-radius:10px;padding:12px 14px}
+.geo-list .age{font-family:var(--font-mono);font-size:.7rem;letter-spacing:.18em;color:var(--rust-bright);text-transform:uppercase;margin-bottom:4px}
+.geo-list h4{font-size:.95rem;font-weight:700;margin-bottom:4px}
+.geo-list p{font-size:.82rem;color:var(--text-soft);line-height:1.55}
+
+.tl-list{grid-template-columns:1fr}
+.tl-row{
+  display:grid;grid-template-columns:90px 1fr;gap:14px;align-items:start;
+  padding:10px 0;border-bottom:1px dashed var(--line);
+}
+.tl-row:last-child{border-bottom:none}
+.tl-year{font-family:var(--font-num);font-weight:800;font-size:1.15rem;color:var(--rust-bright);letter-spacing:-.02em;line-height:1.1}
+.tl-year small{display:block;font-family:var(--font-mono);font-weight:500;font-size:.62rem;color:var(--text-muted);letter-spacing:.16em;margin-top:3px}
+.tl-text h4{font-size:.92rem;font-weight:600;margin-bottom:3px}
+.tl-text p{font-size:.8rem;color:var(--text-soft);line-height:1.55}
+.tl-row.win .tl-year{color:var(--vitality-bright)}
+.tl-row.warn .tl-year{color:var(--danger-bright)}
+
+.species-grid{grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}
+.spc{background:rgba(255,255,255,.02);border:1px solid var(--line);border-radius:10px;padding:12px}
+.spc .sci{font-family:var(--font-mono);font-size:.65rem;color:var(--text-dim);font-style:italic;letter-spacing:.04em;margin-bottom:2px}
+.spc h4{font-size:.92rem;font-weight:700;margin-bottom:6px}
+.spc p{font-size:.78rem;color:var(--text-soft);line-height:1.5}
+.spc .grade{display:inline-block;font-family:var(--font-mono);font-size:.6rem;letter-spacing:.1em;padding:2px 6px;margin-top:8px;border-radius:4px;background:rgba(231,76,60,.1);color:var(--danger-bright);border:1px solid rgba(231,76,60,.25)}
+.spc .grade.ok{background:rgba(125,190,142,.1);color:var(--vitality-bright);border-color:rgba(125,190,142,.25)}
+
+.threat-list{grid-template-columns:1fr}
+.thr-net{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.thr-node{background:rgba(255,255,255,.02);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.thr-node .role{font-family:var(--font-mono);font-size:.62rem;color:var(--rust-bright);letter-spacing:.14em;text-transform:uppercase;margin-bottom:3px}
+.thr-node h5{font-size:.86rem;font-weight:700;margin-bottom:4px}
+.thr-node p{font-size:.74rem;color:var(--text-soft);line-height:1.45}
+.thr-node.root{grid-column:1/-1;border-color:var(--rust);border-left:3px solid var(--rust-bright)}
+.thr-impact{margin-top:14px;display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px}
+.thr-impact .imp{background:rgba(192,57,43,.05);border:1px solid rgba(231,76,60,.25);border-radius:10px;padding:10px 12px}
+.thr-impact h5{font-size:.85rem;font-weight:600;color:var(--danger-bright);margin-bottom:3px}
+.thr-impact p{font-size:.76rem;color:var(--text-soft);line-height:1.5}
+
+.legal-grid{grid-template-columns:1fr 1fr}
+.legal-grid .col{background:rgba(255,255,255,.02);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.legal-grid .col h4{font-size:.88rem;font-weight:700;margin-bottom:8px}
+.legal-grid .col.have h4{color:var(--vitality-bright)}
+.legal-grid .col.miss h4{color:var(--amber)}
+.legal-grid ul{list-style:none;padding:0}
+.legal-grid li{font-size:.8rem;color:var(--text-soft);padding:5px 0;border-bottom:1px dashed var(--line);line-height:1.5}
+.legal-grid li:last-child{border-bottom:none}
+
+.cta-grid{grid-template-columns:repeat(auto-fit,minmax(180px,1fr))}
+.cta{background:rgba(125,190,142,.06);border:1px solid rgba(125,190,142,.28);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:6px}
+.cta h4{font-size:.92rem;font-weight:700;color:var(--vitality-bright)}
+.cta p{font-size:.78rem;color:var(--text-soft);line-height:1.5}
+.cta a{
+  align-self:flex-start;font-family:var(--font-mono);font-size:.7rem;letter-spacing:.1em;
+  color:var(--vitality-bright);margin-top:4px;
+}
+.cta a:hover{color:#A6E0B6}
+
+/* ===== FOOTER STRIP ===== */
+.foot{
+  display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;
+  font-family:var(--font-mono);font-size:.7rem;color:var(--text-muted);letter-spacing:.1em;
+}
+.foot a{color:var(--text-dim)}
+.foot a:hover{color:var(--rust-bright)}
+.foot .cta-go{
+  padding:8px 14px;border-radius:8px;background:var(--rust);color:#fff;font-weight:600;letter-spacing:.06em;
+  transition:background .2s var(--ease),transform .15s var(--ease);text-transform:none;
+}
+.foot .cta-go:hover{background:var(--rust-light);transform:translateY(-1px)}
+
+@media (max-width:760px){
+  body{overflow:auto}
+  .page{height:auto;padding:14px}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .facets{grid-template-columns:repeat(2,1fr);grid-template-rows:auto}
+  .thr-net{grid-template-columns:1fr}
+  .legal-grid{grid-template-columns:1fr}
+  .drawer{max-height:90vh}
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ===== TOP NAV ===== -->
+  <header class="nav">
+    <div class="brand">
+      <span class="brand-logo"></span>
+      <span>NEWLEAF · 굴업도</span>
+      <small>ONE PAGE</small>
+    </div>
+    <div class="nav-meta">
+      <span class="urgent">URGENT · 2026 해상풍력 착공 임박</span>
+      <a href="/">전체 아카이브 →</a>
+    </div>
+  </header>
+
+  <!-- ===== MAIN ===== -->
+  <main class="main">
+
+    <!-- LEFT: hero + stats -->
+    <section class="left">
+      <div class="hero">
+        <div class="hero-eye">Gulupdo · 굴업도 · 9000만 년</div>
+        <h1>9천만 년의 땅,<br><em>30년의 저항</em></h1>
+        <span class="divider"></span>
+        <p>한국의 갈라파고스 굴업도. 1994년 핵폐기장을 시민의 힘으로 11개월 만에 막아낸 그 섬이, 이번에는 '친환경'이라는 이름의 해상풍력 앞에 다시 섰습니다. 증거 기반의 디지털 아카이브를 한 화면으로 응축합니다.</p>
+      </div>
+
+      <div class="stats">
+        <div class="stat"><div class="stat-num">90<small>M년</small></div><div class="stat-label">백악기 응회암</div><div class="stat-note">한반도에 드문 화산쇄설암 노두</div></div>
+        <div class="stat"><div class="stat-num">30<small>년+</small></div><div class="stat-label">시민 보전사</div><div class="stat-note">1994 저항 → 현재까지 이어진</div></div>
+        <div class="stat"><div class="stat-num">11<small>개월</small></div><div class="stat-label">핵폐기장 백지화</div><div class="stat-note">1994.12 발표 → 1995.11 철회</div></div>
+        <div class="stat"><div class="stat-num">5<small>종+</small></div><div class="stat-label">법적 보호종</div><div class="stat-note">매·먹구렁이·왕은점표범나비 등</div></div>
+        <div class="stat"><div class="stat-num">81</div><div class="stat-label">증거 문서</div><div class="stat-note">학술·정부·언론·시민과학</div></div>
+        <div class="stat urgent"><div class="stat-num">2026</div><div class="stat-label">착공 예정</div><div class="stat-note">환경영향평가 진행 중</div></div>
+      </div>
+    </section>
+
+    <!-- RIGHT: facets -->
+    <section class="right">
+      <div class="facets">
+        <button class="facet" data-facet="geology">
+          <div class="ord">Ⅰ · 시간의 시</div>
+          <h3>이 섬은 <em>9천만 년</em>을 기다렸다</h3>
+          <p>중생대 백악기 화산활동이 남긴 응회암. 토끼섬 해식와는 국내 유일.</p>
+          <span class="badge">GEOLOGY · 4 LAYERS</span>
+        </button>
+
+        <button class="facet" data-facet="timeline">
+          <div class="ord">Ⅱ · 저항의 역사</div>
+          <h3>1994년 겨울, <em>섬이 목소리를 냈다</em></h3>
+          <p>핵폐기장 → 골프장 → 해상풍력. 30년에 걸친 시민 보전의 연표.</p>
+          <span class="badge">TIMELINE · 11 EVENTS</span>
+        </button>
+
+        <button class="facet" data-facet="species">
+          <div class="ord">Ⅲ · 생명의 섬</div>
+          <h3>이 섬이 지키고 있는 <em>다섯 생명</em></h3>
+          <p>매 2쌍 번식, 먹구렁이 탈피각, 왕은점표범나비 국내 최대 군락.</p>
+          <span class="badge">SPECIES · 5 PROTECTED</span>
+        </button>
+
+        <button class="facet danger" data-facet="threat">
+          <div class="ord">Ⅴ · URGENT</div>
+          <h3>'친환경'이라는 <em>이름의 위협</em></h3>
+          <p>CJ → 굴업풍력개발 → SK디앤디·대우건설. 누락된 영향 평가.</p>
+          <span class="badge">THREAT · 2026 착공</span>
+        </button>
+
+        <button class="facet" data-facet="legal">
+          <div class="ord">Ⅳ · 법적 진공</div>
+          <h3>법은 있다. <em>영구적 보호</em>는 없다</h3>
+          <p>적용 중인 법은 부분적, 유네스코 지질공원 등재는 미완.</p>
+          <span class="badge">LEGAL · GAP ANALYSIS</span>
+        </button>
+
+        <button class="facet action" data-facet="action">
+          <div class="ord">Ⅷ · 함께하기</div>
+          <h3>30년 전 그 <em>시민의 힘</em>으로</h3>
+          <p>탐방·의견서·후원·자원봉사. 4가지 참여 방식.</p>
+          <span class="badge">ACTION · JOIN US</span>
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="foot">
+    <span>© 2026 사단법인 뉴리프 · NEWLEAF</span>
+    <span><a href="/">전체 아카이브 / 9 SECTIONS / 81 REFS</a></span>
+    <a class="cta-go" href="/#section-cta">참여 신청 →</a>
+  </footer>
+
+</div>
+
+<!-- ===== DRAWER ===== -->
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" aria-hidden="true" role="dialog" aria-modal="true">
+  <div class="drawer-head">
+    <div class="head-l">
+      <span class="ord" id="d-ord">—</span>
+      <h2 id="d-title">—</h2>
+    </div>
+    <div class="head-r">
+      <a class="drawer-link" id="d-deep" href="/">전체 아카이브에서 보기 →</a>
+      <button class="drawer-close" id="d-close" aria-label="닫기">×</button>
+    </div>
+  </div>
+  <div class="drawer-body" id="d-body"></div>
+</aside>
+
+<script>
+(() => {
+  const $ = (s) => document.querySelector(s);
+  const drawer = $('#drawer');
+  const scrim  = $('#scrim');
+  const dOrd   = $('#d-ord');
+  const dTitle = $('#d-title');
+  const dBody  = $('#d-body');
+  const dDeep  = $('#d-deep');
+
+  const FACETS = {
+    geology: {
+      ord: 'Ⅰ · GEOLOGY',
+      title: '이 섬은 <em>9천만 년</em>을 기다렸다',
+      deep: '/#section-geology',
+      html: `
+        <p style="color:var(--text-soft);max-width:62ch;margin-bottom:14px;font-size:.92rem">
+          굴업도는 중생대 백악기 화산활동이 남긴 응회암 섬입니다. 한반도 내륙에서 보기 드문
+          <strong>해양 화산쇄설암 노두</strong>로, 유네스코 세계지질공원 등재 기준에 부합하는
+          층서·구조·풍화 지형을 모두 갖추고 있습니다.
+        </p>
+        <div class="geo-list">
+          <div class="item"><div class="age">9000만 년 전 · 백악기 후기</div><h4>화산 폭발과 응회암 퇴적</h4><p>분화로 쏟아진 화산재가 바다 아래 가라앉아 수백 미터 두께의 응회암 층 형성.</p></div>
+          <div class="item"><div class="age">수천만 년 전</div><h4>해수면 변동과 절벽 형성</h4><p>빙하기·간빙기의 해수면 오르내림이 응회암을 깎아 해식애와 타포니를 만듬.</p></div>
+          <div class="item"><div class="age">1만 년 전 · 홀로세</div><h4>토끼섬 · 코끼리바위 완성</h4><p>파도와 염풍화가 응회암 절벽을 깎아 국내외 희귀 지형인 해식와와 시스택 완성.</p></div>
+          <div class="item"><div class="age">현재</div><h4>살아있는 지질 교과서</h4><p>풍화혈(타포니) · 응회암 층리 · 해식와 · 사구 · 시스택 — 한국 해안 지질의 실외 강의실.</p></div>
+        </div>
+      `,
+    },
+    timeline: {
+      ord: 'Ⅱ · TIMELINE',
+      title: '1994년 겨울, <em>섬이 목소리를 냈다</em>',
+      deep: '/#section-timeline',
+      html: `
+        <div class="tl-list">
+          <div class="tl-row warn"><div class="tl-year">1994<small>12월</small></div><div class="tl-text"><h4>핵폐기물 처리장 후보지 지정</h4><p>정부가 굴업도를 핵폐기장 부지로 발표 — 시민·과학자 즉각 반발.</p></div></div>
+          <div class="tl-row"><div class="tl-year">1995<small>봄</small></div><div class="tl-text"><h4>인핵협 결성 — 30개 시민단체</h4><p>인천 핵폐기장 백지화 협의회 출범, 전국적 연대 시작.</p></div></div>
+          <div class="tl-row win"><div class="tl-year">1995<small>여름</small></div><div class="tl-text"><h4>활성단층 발견 — 결정적 증거</h4><p>현장 조사에서 활성단층 확인 → 부지 부적합 과학적 입증.</p></div></div>
+          <div class="tl-row win"><div class="tl-year">1995<small>11월</small></div><div class="tl-text"><h4>핵폐기장 계획 전면 백지화</h4><p>발표 11개월 만에 사업 철회 — 한국 환경운동사의 분기점.</p></div></div>
+          <div class="tl-row"><div class="tl-year">2000년대<small>이후</small></div><div class="tl-text"><h4>CJ 씨앤아이레저산업 토지 매입</h4><p>섬 면적 대부분 사유화. 골프장·콘도 관광단지 추진.</p></div></div>
+          <div class="tl-row win"><div class="tl-year">2014<small></small></div><div class="tl-text"><h4>CJ 골프장 개발 계획 전면 철회</h4><p>환경단체·지자체 압박 끝에 관광단지 사업 백지화.</p></div></div>
+          <div class="tl-row warn"><div class="tl-year">2020<small></small></div><div class="tl-text"><h4>해상풍력 발전 사업 허가 취득</h4><p>토지 소유자 CJ 씨앤아이레저산업이 풍력 사업으로 전환.</p></div></div>
+          <div class="tl-row warn"><div class="tl-year">2021<small></small></div><div class="tl-text"><h4>'굴업풍력개발㈜' 물적분할 설립</h4><p>비상장 SPC 신설 — 공시 추적 한계.</p></div></div>
+          <div class="tl-row warn"><div class="tl-year">2024–25<small></small></div><div class="tl-text"><h4>환경영향평가 진행</h4><p>해저 케이블·수중소음·조류 충돌 평가에 누락 우려.</p></div></div>
+          <div class="tl-row warn"><div class="tl-year">2026<small>임박</small></div><div class="tl-text"><h4>해상풍력 착공 예정 · 시민 대응의 시간</h4><p>법적·과학적 대응의 마지막 골든타임.</p></div></div>
+          <div class="tl-row win"><div class="tl-year">2030<small>목표</small></div><div class="tl-text"><h4>영구 보전 · 유네스코 지질공원 등재</h4><p>뉴리프 2030 로드맵의 종착점.</p></div></div>
+        </div>
+      `,
+    },
+    species: {
+      ord: 'Ⅲ · BIODIVERSITY',
+      title: '이 섬이 지키고 있는 <em>다섯 생명</em>',
+      deep: '/#section-species',
+      html: `
+        <p style="color:var(--text-soft);max-width:62ch;margin-bottom:14px;font-size:.92rem">
+          굴업도에는 국가가 법으로 보호하는 멸종위기종이 최소 5종 이상 서식합니다.
+          이 섬이 개발되면 이들의 서식지는 복원될 수 없습니다.
+        </p>
+        <div class="species-grid">
+          <div class="spc"><div class="sci">Falco peregrinus</div><h4>매</h4><p>지구상 가장 빠른 동물. 개머리언덕에서 번식쌍 2쌍 확인.</p><span class="grade">Ⅰ급 · 천연기념물</span></div>
+          <div class="spc"><div class="sci">Elaphe schrenckii</div><h4>먹구렁이</h4><p>한국 최대 뱀(2m+). 2026.03 탐사에서 탈피각 1점 발견.</p><span class="grade">Ⅰ급</span></div>
+          <div class="spc"><div class="sci">Argynnis nerippe</div><h4>왕은점표범나비</h4><p>굴업도가 국내 최대 군락지. 초지 생태계 건강 지표종.</p><span class="grade">Ⅱ급</span></div>
+          <div class="spc"><div class="sci">Haematopus ostralegus osculans</div><h4>검은머리물떼새</h4><p>한국 고유 아종. 해상풍력 건설 영향 직접 취약종.</p><span class="grade">천연기념물</span></div>
+          <div class="spc"><div class="sci">Neophocaena asiaeorientalis</div><h4>상괭이 (토종 돌고래)</h4><p>토끼섬 주변 해역 출몰. 해저 공사 수중소음에 매우 취약.</p><span class="grade">해양보호종</span></div>
+          <div class="spc"><div class="sci">GBIF · iNaturalist · eBird</div><h4>시민과학 데이터</h4><p>공개 플랫폼에 축적된 100+ 관측 기록. 장기 모니터링의 기반.</p><span class="grade ok">DATA · 100+</span></div>
+        </div>
+      `,
+    },
+    threat: {
+      ord: 'Ⅴ · THREAT',
+      title: "'친환경'이라는 <em style='color:var(--danger-bright)'>이름의 위협</em>",
+      deep: '/#section-threat',
+      html: `
+        <p style="color:var(--text-soft);max-width:62ch;margin-bottom:14px;font-size:.92rem">
+          해상풍력은 탄소중립의 일환으로 장려되지만, 굴업도 해역에 지어질 발전단지의
+          <strong>기초 공사·해저 케이블·수중소음·조류 충돌</strong>은 평가받지 않은 영역이 많습니다.
+        </p>
+        <div class="thr-net">
+          <div class="thr-node root">
+            <div class="role">모기업 · 토지 소유</div>
+            <h5>CJ 그룹 / 씨앤아이레저산업</h5>
+            <p>2000년대 굴업도 면적 대부분 매입. 관광단지 추진 후 2014년 철회 → 2020년 해상풍력 전환.</p>
+          </div>
+          <div class="thr-node">
+            <div class="role">2021 신설 SPC · 시행 주체</div>
+            <h5>굴업풍력개발㈜</h5>
+            <p>씨앤아이에서 물적분할로 신설. 비상장 → 공시 추적 한계.</p>
+          </div>
+          <div class="thr-node">
+            <div class="role">합작 파트너</div>
+            <h5>SK디앤디</h5>
+            <p>신재생에너지 개발 사업자. DART 공시 30건. 해상풍력 지분 참여.</p>
+          </div>
+          <div class="thr-node">
+            <div class="role">EPC 건설</div>
+            <h5>대우건설 (예상)</h5>
+            <p>플랜트·해상 구조물 건설 담당. 최종 계약 단계.</p>
+          </div>
+        </div>
+        <div class="thr-impact">
+          <div class="imp"><h5>해저 케이블 부설</h5><p>해저면 교란이 상괭이·갯벌 생태계에 미치는 영향 미평가.</p></div>
+          <div class="imp"><h5>수중소음 누적</h5><p>토종 돌고래 상괭이의 음향통신 교란 가능성.</p></div>
+          <div class="imp"><h5>조류 충돌</h5><p>매·검은머리물떼새 비행 경로와 풍력 블레이드의 중첩 평가 부재.</p></div>
+          <div class="imp"><h5>경관·지질 훼손</h5><p>응회암 노두·해식와 인접 작업이 지질 보전에 미치는 영향.</p></div>
+        </div>
+      `,
+    },
+    legal: {
+      ord: 'Ⅳ · LEGAL',
+      title: '법은 있다. <em>영구적 보호</em>는 없다.',
+      deep: '/#section-legal',
+      html: `
+        <div class="legal-grid">
+          <div class="col have">
+            <h4>✅ 현재 적용 중인 법</h4>
+            <ul>
+              <li>문화재보호법 — 매·검은머리물떼새 등 천연기념물 지정</li>
+              <li>야생생물법 — 멸종위기 야생생물 Ⅰ·Ⅱ급 지정 보호</li>
+              <li>해양생태계법 — 상괭이 등 해양보호생물 지정</li>
+              <li>환경영향평가법 — 해상풍력 사업 평가 의무</li>
+            </ul>
+          </div>
+          <div class="col miss">
+            <h4>⚠ 부재한 보호</h4>
+            <ul>
+              <li>지질·경관 단위의 영구 보호구역 미지정</li>
+              <li>유네스코 세계지질공원 등재 절차 미시작</li>
+              <li>해양·육상 통합 누적영향평가 제도 부재</li>
+              <li>섬 전체를 천연기념물·국립공원으로 보호하는 절차 미진</li>
+            </ul>
+          </div>
+        </div>
+      `,
+    },
+    action: {
+      ord: 'Ⅷ · ACTION',
+      title: '30년 전 핵폐기장을 막았던<br>그 <em>시민의 힘</em>으로.',
+      deep: '/#section-cta',
+      html: `
+        <div class="cta-grid">
+          <div class="cta"><h4>탐방 · VISIT</h4><p>현장 답사에 참여해 굴업도의 지질·생명을 직접 확인합니다.</p><a href="/#section-cta">신청하기 →</a></div>
+          <div class="cta"><h4>의견서 · OPINION</h4><p>환경영향평가에 시민 의견서를 제출합니다. 템플릿 제공.</p><a href="/#section-cta">참여하기 →</a></div>
+          <div class="cta"><h4>후원 · DONATE</h4><p>아카이브 운영·법적 대응·과학 조사 비용을 함께합니다.</p><a href="/#section-cta">후원하기 →</a></div>
+          <div class="cta"><h4>자원봉사 · VOLUNTEER</h4><p>시민과학 모니터링·콘텐츠 제작·현장 활동에 함께합니다.</p><a href="/#section-cta">참여하기 →</a></div>
+        </div>
+        <p style="margin-top:14px;color:var(--text-dim);font-size:.85rem;line-height:1.6">
+          신청 후 <strong>48시간 이내</strong> 운영진이 직접 연락드립니다. 1994년의 시민이 그러했듯,
+          이번에도 우리가 막을 수 있습니다.
+        </p>
+      `,
+    },
+  };
+
+  function open(facet){
+    const data = FACETS[facet];
+    if (!data) return;
+    document.querySelectorAll('.facet').forEach(f => f.classList.toggle('active', f.dataset.facet === facet));
+    dOrd.textContent  = data.ord;
+    dTitle.innerHTML  = data.title;
+    dBody.innerHTML   = data.html;
+    dDeep.href        = data.deep;
+    drawer.classList.add('open');
+    drawer.setAttribute('aria-hidden','false');
+    scrim.classList.add('show');
+    history.replaceState(null, '', '#' + facet);
+  }
+  function close(){
+    drawer.classList.remove('open');
+    drawer.setAttribute('aria-hidden','true');
+    scrim.classList.remove('show');
+    document.querySelectorAll('.facet').forEach(f => f.classList.remove('active'));
+    if (location.hash) history.replaceState(null, '', location.pathname);
+  }
+
+  document.querySelectorAll('.facet').forEach(btn => {
+    btn.addEventListener('click', () => open(btn.dataset.facet));
+  });
+  $('#d-close').addEventListener('click', close);
+  scrim.addEventListener('click', close);
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') close();
+    // number 1-6 quick-open
+    const map = ['geology','timeline','species','threat','legal','action'];
+    if (/^[1-6]$/.test(e.key)) open(map[+e.key - 1]);
+  });
+
+  // open via hash on load (e.g. /gulupdo.html#species)
+  const h = (location.hash || '').replace('#','');
+  if (FACETS[h]) open(h);
+})();
+</script>
+</body>
+</html>
